@@ -346,7 +346,7 @@ namespace ARUP.IssueTracker.Bentley
                     currentView.set_Extents(extents);
                     currentView.set_Center(center);
                     currentView.Redraw();
-                }                
+                }
 
                 // camera scale
                 double h = currentView.get_Extents().Y * unitFactor;
@@ -355,10 +355,11 @@ namespace ARUP.IssueTracker.Bentley
 
                 // camera location
                 Point3d cameraLocation = MSApp.Point3dScale(currentView.get_CameraPosition(), unitFactor);
-                // grab current view center point if camera direction is along Z axis (i.e., top view or bottom view)
+                // grab current view center point and force to top view if camera direction is along Z axis (i.e., top view or bottom view)
                 if (direction.X < distancePrecision && direction.Y < distancePrecision) // arbitrary precision
                 {
                     cameraLocation = MSApp.Point3dScale(currentView.get_Center(), unitFactor);
+                    direction.Z = -1.0;
                 }
 
                 // camera up vector
@@ -400,11 +401,12 @@ namespace ARUP.IssueTracker.Bentley
 
                 // get current clip volume and compute clipping planes
                 ulong previousClipVolumeId = 0;
-                int status = mdlView_getClipBoundaryElement(ref previousClipVolumeId, activeViewNum - 1).ToInt32();
-                if (status == 0)
+                try
                 {
-                    try
+                    int status = mdlView_getClipBoundaryElement(ref previousClipVolumeId, activeViewNum - 1).ToInt32();
+                    if (status == 0)
                     {
+                    
                         Element previousClipVolume = MSApp.ActiveModelReference.GetElementByID((long)previousClipVolumeId);
                         var smartSolids = MSApp.SmartSolid.ConvertToSmartSolidElement(previousClipVolume).BuildArrayFromContents();
                         if(smartSolids.Length > 0)
@@ -431,12 +433,12 @@ namespace ARUP.IssueTracker.Bentley
                             }
                             // add to BCF clipping planes
                             v.ClippingPlanes = clippingPlanes.ToArray();
-                        }
+                        }                        
                     }
-                    catch (Exception ex)
-                    {
-                        // do nothing just for catching the exception when element not found or not being converted to smart solid
-                    }
+                }
+                catch (Exception ex)
+                {
+                    // do nothing just for catching the exception when clip volume not found, element not found, or not being converted to smart solid
                 }
 
                 return v;
@@ -520,19 +522,19 @@ namespace ARUP.IssueTracker.Bentley
                 
                 // disable and clear previous clip volume
                 ulong previousClipVolumeId = 0;
-                int status = mdlView_getClipBoundaryElement(ref previousClipVolumeId, activeViewNum - 1).ToInt32();
-                if (status == 0)
+                try
                 {
-                    try 
-                    {
+                    int status = mdlView_getClipBoundaryElement(ref previousClipVolumeId, activeViewNum - 1).ToInt32();
+                    if (status == 0)
+                    {                        
                         Element previousClipVolume = MSApp.ActiveModelReference.GetElementByID((long)previousClipVolumeId);
-                        MSApp.ActiveModelReference.RemoveElement(previousClipVolume);
-                    }
-                    catch(COMException ex)
-                    {
-                        // do nothing just for catching the exception when element not found
-                    }         
-                }                               
+                        MSApp.ActiveModelReference.RemoveElement(previousClipVolume);                                 
+                    }                        
+                }
+                catch(Exception ex)
+                {
+                    // do nothing just for catching the exception when clip volume not found
+                }
                 currentView.ClipVolume = false;
 
                 // handle model view clipping
@@ -548,70 +550,73 @@ namespace ARUP.IssueTracker.Bentley
                         });
                     }
                     List<Point3d> intersectionPoints = getIntersectionPointsOfClippingPlanes(clippingPlanes);
-                    double maxZ = intersectionPoints.Max(p => p.Z);
-                    double minZ = intersectionPoints.Min(p => p.Z);
-                    double midZ = (maxZ + minZ) / 2;
-                    double halfOfHeight = (maxZ - minZ) / 2;
-                    // find XY projection points
-                    List<Vector2d> planeVertices = new List<Vector2d>();
-                    foreach (Point3d p in intersectionPoints)
+                    if (intersectionPoints != null)
                     {
-                        bool uniqueProjectionPoint = true;
-                        foreach (Vector2d vertex in planeVertices)
+                        double maxZ = intersectionPoints.Max(p => p.Z);
+                        double minZ = intersectionPoints.Min(p => p.Z);
+                        double midZ = (maxZ + minZ) / 2;
+                        double halfOfHeight = (maxZ - minZ) / 2;
+                        // find XY projection points
+                        List<Vector2d> planeVertices = new List<Vector2d>();
+                        foreach (Point3d p in intersectionPoints)
                         {
-                            if (MSApp.Point2dDistance(new Point2d() { X = vertex.X, Y = vertex.Y }, new Point2d() { X = p.X, Y = p.Y }) < distancePrecision) // arbitrary precision for now
+                            bool uniqueProjectionPoint = true;
+                            foreach (Vector2d vertex in planeVertices)
                             {
-                                uniqueProjectionPoint = false;
-                                break;
+                                if (MSApp.Point2dDistance(new Point2d() { X = vertex.X, Y = vertex.Y }, new Point2d() { X = p.X, Y = p.Y }) < distancePrecision) // arbitrary precision for now
+                                {
+                                    uniqueProjectionPoint = false;
+                                    break;
+                                }
+                            }
+
+                            if (uniqueProjectionPoint)
+                            {
+                                planeVertices.Add(new Vector2d(p.X, p.Y));
                             }
                         }
+                        // determine convex hull points
+                        var convexNullPoints = ConvexHullHelper.MonotoneChainConvexHull(planeVertices.ToArray()).Select(p => new Point3d() { X = p.X, Y = p.Y, Z = midZ });
+                        ShapeElement planeShape = MSApp.CreateShapeElement1(null, convexNullPoints.ToArray(), MsdFillMode.UseActive);
+                        MSApp.ActiveModelReference.AddElement(planeShape);
 
-                        if (uniqueProjectionPoint)
-                        {
-                            planeVertices.Add(new Vector2d(p.X, p.Y));
-                        }
-                    }
-                    // determine convex hull points
-                    var convexNullPoints = ConvexHullHelper.MonotoneChainConvexHull(planeVertices.ToArray()).Select(p => new Point3d() { X = p.X, Y = p.Y, Z = midZ });
-                    ShapeElement planeShape = MSApp.CreateShapeElement1(null, convexNullPoints.ToArray(), MsdFillMode.UseActive);
-                    MSApp.ActiveModelReference.AddElement(planeShape);
-
-                    // produce solid
-                    Point3d firstVertex = planeShape.get_Vertex(1);
+                        // produce solid
+                        Point3d firstVertex = planeShape.get_Vertex(1);
 #if connect
-                    MSApp.CadInputQueue.SendKeyin("CONSTRUCT SURFACE PROJECTIONSOLID ");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.nonParametric", 1, "SOLIDMODELING");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidSkewed", 0, "SOLIDMODELING");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidIsDist", 1, "SOLIDMODELING");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidDistance", (MSApp.ActiveModelReference.UORsPerMasterUnit * halfOfHeight), "SOLIDMODELING");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidBothWays", 1, "SOLIDMODELING");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidYScale", 1, "SOLIDMODELING");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidXScale", 1, "SOLIDMODELING");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidActiveAttib", 0, "SOLIDMODELING");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidKeepOriginal", 0, "SOLIDMODELING");                    
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidSpinAng", 0, "SOLIDMODELING");
-                    MSApp.CadInputQueue.SendKeyin("CONSTRUCT SURFACE PROJECTIONSOLID ");
+                        MSApp.CadInputQueue.SendKeyin("CONSTRUCT SURFACE PROJECTIONSOLID ");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.nonParametric", 1, "SOLIDMODELING");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidSkewed", 0, "SOLIDMODELING");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidIsDist", 1, "SOLIDMODELING");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidDistance", (MSApp.ActiveModelReference.UORsPerMasterUnit * halfOfHeight), "SOLIDMODELING");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidBothWays", 1, "SOLIDMODELING");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidYScale", 1, "SOLIDMODELING");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidXScale", 1, "SOLIDMODELING");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidActiveAttib", 0, "SOLIDMODELING");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidKeepOriginal", 0, "SOLIDMODELING");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidSpinAng", 0, "SOLIDMODELING");
+                        MSApp.CadInputQueue.SendKeyin("CONSTRUCT SURFACE PROJECTIONSOLID ");
 #elif select
-                    MSApp.CadInputQueue.SendCommand("CONSTRUCT SURFACE PROJECTIONSOLID");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidSkewed", 0, "3DTOOLS");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidIsDist", 1, "3DTOOLS");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidDistance", (MSApp.ActiveModelReference.UORsPerMasterUnit * halfOfHeight), "3DTOOLS");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidBothWays", 1, "3DTOOLS");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidYScale", 1, "3DTOOLS");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidXScale", 1, "3DTOOLS");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidActiveAttib", 0, "3DTOOLS");
-                    MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidKeepOriginal", 0, "3DTOOLS");
-                    MSApp.CadInputQueue.SendDataPoint(firstVertex, activeViewNum);
-                    MSApp.CadInputQueue.SendDataPoint(firstVertex, activeViewNum);
+                        MSApp.CadInputQueue.SendCommand("CONSTRUCT SURFACE PROJECTIONSOLID");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidSkewed", 0, "3DTOOLS");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidIsDist", 1, "3DTOOLS");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidDistance", (MSApp.ActiveModelReference.UORsPerMasterUnit * halfOfHeight), "3DTOOLS");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidBothWays", 1, "3DTOOLS");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidYScale", 1, "3DTOOLS");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrudeSolidXScale", 1, "3DTOOLS");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidActiveAttib", 0, "3DTOOLS");
+                        MSApp.SetCExpressionValue("tcb->ms3DToolSettings.extrude.solidKeepOriginal", 0, "3DTOOLS");
+                        MSApp.CadInputQueue.SendDataPoint(firstVertex, activeViewNum);
+                        MSApp.CadInputQueue.SendDataPoint(firstVertex, activeViewNum);
 #endif
-                    MSApp.CadInputQueue.SendDataPoint(firstVertex, activeViewNum);
-                    MSApp.CadInputQueue.SendDataPoint(firstVertex, activeViewNum);
+                        MSApp.CadInputQueue.SendDataPoint(firstVertex, activeViewNum);
+                        MSApp.CadInputQueue.SendDataPoint(firstVertex, activeViewNum);
 
-                    // clip volume
-                    MSApp.CadInputQueue.SendCommand("VIEW CLIP SINGLE");
-                    MSApp.SetCExpressionValue("tcb->msToolSettings.clipViewTools.hideClipElement", 1, "CLIPVIEW");
-                    MSApp.CadInputQueue.SendDataPoint(firstVertex, activeViewNum);
-                    MSApp.CadInputQueue.SendDataPoint(firstVertex, activeViewNum);
+                        // clip volume
+                        MSApp.CadInputQueue.SendCommand("VIEW CLIP SINGLE");
+                        MSApp.SetCExpressionValue("tcb->msToolSettings.clipViewTools.hideClipElement", 1, "CLIPVIEW");
+                        MSApp.CadInputQueue.SendDataPoint(firstVertex, activeViewNum);
+                        MSApp.CadInputQueue.SendDataPoint(firstVertex, activeViewNum);
+                    }                    
                 }                
 
                 // handle BCF components
@@ -720,7 +725,7 @@ namespace ARUP.IssueTracker.Bentley
                     }
                 }
             }
-            return intersectionPoints;
+            return intersectionPoints.Count > 0 ? intersectionPoints : null;
         }
 
         private double GetGunits()
