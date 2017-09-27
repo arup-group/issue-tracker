@@ -42,7 +42,7 @@ namespace ARUP.IssueTracker.UserControls
         /// </summary>
         public Window mainWindow;
 
-        public static List<string> recentProjectKeys;
+        public static List<string> recentProjectKeys = new List<string>();
 
         public MainPanel()
         {
@@ -212,7 +212,7 @@ namespace ARUP.IssueTracker.UserControls
 
                     // populate recent projects
                     string recentProjectsString = MySettings.Get("recentproj");
-                    if (!string.IsNullOrWhiteSpace(recentProjectsString) && recentProjectKeys == null)
+                    if (!string.IsNullOrWhiteSpace(recentProjectsString))
                     {
                         recentProjectKeys = new List<string>(recentProjectsString.Split(','));
                     }
