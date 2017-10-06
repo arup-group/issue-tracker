@@ -15,7 +15,7 @@ The tools can be used to store a list of 'Issues' in either a BCF file (BIM Coll
 ## Installation
 Please download the latest installer from the link below.
 
-[Download Installer (2017.09.18.01)](https://github.com/ArupAus/issue-tracker/tree/arup_2016_support_bcf2)
+[Download Installer (2017.9.27.1)](https://github.com/ArupAus/issue-tracker/releases/download/2017.9.27.1/Case_Issue_Tracker_2017.09.27.01.msi)
 
 ## Screencasts
 [Video Playlist](https://media.arup.com/embedplaylist/secure/embed/playlistId/0_o01zfipb)
@@ -24,6 +24,6 @@ Please download the latest installer from the link below.
 [User Manual](https://github.com/ArupAus/issue-tracker/blob/master/Documentation/ArupIssueTracker_documentation.pdf)
 
 ## Development
-See the [Arup_2016_support_bcf2](https://github.com/ArupAus/issue-tracker/tree/arup_2016_support_bcf2) branch for the latest.
+See the [master](https://github.com/ArupAus/issue-tracker/tree/master) branch for the latest.
 
 This code will be in flux until properly merged with https://github.com/WeConnect/issue-tracker  and  https://github.com/teocomi/BCFier 
