@@ -45,6 +45,8 @@ namespace ARUP.IssueTracker.Civil3D
                 string versionNumber = "20.1";
 #elif C3D2017
                 string versionNumber = "21.0";
+#elif C3D2018
+                string versionNumber = "22.0";
 #endif
 
                 // Version

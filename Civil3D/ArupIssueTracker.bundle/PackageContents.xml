@@ -26,4 +26,10 @@
     <ComponentEntry AppName="ArupIssueTracker Ribbon" ModuleName="ArupIssueTracker.cuix" AppDescription="ArupIssueTracker Plugins for AutoCAD" LoadOnAutoCADStartup="True" />
 	<ComponentEntry AppName="ArupIssueTracker Entry" ModuleName="ARUP.IssueTracker.Civil3D.2017.dll" AppDescription="ArupIssueTracker Plugins for AutoCAD" LoadOnAutoCADStartup="True" />
   </Components>
+  
+  <Components Description="2018">
+    <RuntimeRequirements OS="Win32|Win64" Platform="AutoCAD|AutoCAD*" SeriesMin="22.0" SeriesMax="22.0" />
+    <ComponentEntry AppName="ArupIssueTracker Ribbon" ModuleName="ArupIssueTracker.cuix" AppDescription="ArupIssueTracker Plugins for AutoCAD" LoadOnAutoCADStartup="True" />
+	<ComponentEntry AppName="ArupIssueTracker Entry" ModuleName="ARUP.IssueTracker.Civil3D.2018.dll" AppDescription="ArupIssueTracker Plugins for AutoCAD" LoadOnAutoCADStartup="True" />
+  </Components>
 </ApplicationPackage>
