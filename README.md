@@ -19,7 +19,7 @@ Please download the latest installer from the link below.
 
 ## Documentation
 
-[Online Documentation](https://github.com/ArupAus/issue-tracker/blob/master/Documentation/documentation.md)
+[User Guide](https://arupaus.github.io/issue-tracker/Documentation/UserGuide)
 
 ## Screencasts
 [Video Playlist](https://media.arup.com/embedplaylist/secure/embed/playlistId/0_o01zfipb)
