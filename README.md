@@ -17,11 +17,12 @@ Please download the latest installer from the link below.
 
 [Download Installer (2017.11.6.1)](https://github.com/ArupAus/issue-tracker/releases/download/2017.11.6.1/Case_Issue_Tracker_2017.11.15.01.msi)
 
+## Documentation
+
+[Online Documentation](https://github.com/ArupAus/issue-tracker/blob/master/Documentation/documentation.md)
+
 ## Screencasts
 [Video Playlist](https://media.arup.com/embedplaylist/secure/embed/playlistId/0_o01zfipb)
-
-## Documentation
-[User Manual](https://github.com/ArupAus/issue-tracker/blob/master/Documentation/ArupIssueTracker_documentation.pdf)
 
 ## Development
 See the [master](https://github.com/ArupAus/issue-tracker/tree/master) branch for the latest.
