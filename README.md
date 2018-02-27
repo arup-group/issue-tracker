@@ -6,22 +6,23 @@ The tools can be used to store a list of 'Issues' in either a BCF file (BIM Coll
 ![](https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/screenshot.png)
 
 ## Integration
-* Autodesk Revit 2014-2017
-* Autodesk Navisworks 2014-2017
-* Autodesk AutoCAD 2014-2017 compliant products, e.g., Civil 3D, Map 3D
+* Autodesk Revit 2014-2018
+* Autodesk Navisworks 2014-2018
+* Autodesk AutoCAD 2014-2018 compliant products, e.g., Civil 3D, Map 3D
 * Bentley MicroStation compliant products including SELECTseries and CONNECT editions, e.g., AECOsim Building Designer, Power Rail Track
 * All other BCF-compliant products, e.g, Solibri Model Checker, Trimble Tekla Structures
 
 ## Installation
 Please download the latest installer from the link below.
 
-[Download Installer (2017.9.27.1)](https://github.com/ArupAus/issue-tracker/releases/download/2017.9.27.1/Case_Issue_Tracker_2017.09.27.01.msi)
+[Download Installer (2017.11.6.1)](https://github.com/ArupAus/issue-tracker/releases/download/2017.11.6.1/Case_Issue_Tracker_2017.11.15.01.msi)
+
+## Documentation
+
+[User Guide](https://arupaus.github.io/issue-tracker/Documentation/UserGuide)
 
 ## Screencasts
 [Video Playlist](https://media.arup.com/embedplaylist/secure/embed/playlistId/0_o01zfipb)
-
-## Documentation
-[User Manual](https://github.com/ArupAus/issue-tracker/blob/master/Documentation/ArupIssueTracker_documentation.pdf)
 
 ## Development
 See the [master](https://github.com/ArupAus/issue-tracker/tree/master) branch for the latest.
