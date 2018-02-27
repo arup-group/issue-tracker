@@ -513,8 +513,6 @@ namespace ARUP.IssueTracker.Navisworks
                     v.PerspectiveCamera.FieldOfView = zoomValue;
                 }
 
-
-
                 if (elemCheck == 0)//visible (0)
                     _elementList = _oDoc.Models.First.RootItem.DescendantsAndSelf.Where(o => o.InstanceGuid != Guid.Empty && ChechHidden(o.AncestorsAndSelf) && o.FindFirstGeometry() != null && !o.FindFirstGeometry().Item.IsHidden).ToList<ModelItem>();
 
@@ -531,8 +529,8 @@ namespace ARUP.IssueTracker.Navisworks
                 }
 
                 // handling section planes
-                v.ClippingPlanes = GetCurrentSectionPlanes().ToArray();
-
+                var currentSectionPlanes = GetCurrentSectionPlanes();
+                v.ClippingPlanes = currentSectionPlanes != null ? currentSectionPlanes.ToArray() : null;
             }
             catch (Exception ex)
             {
@@ -904,12 +902,12 @@ namespace ARUP.IssueTracker.Navisworks
         {
             List<ClippingPlane> sectionPlanes = new List<ClippingPlane>();
 
-#if NAVIS2017
+#if NAVIS2017 || NAVIS2018
             string serialized = _oDoc.ActiveView.GetClippingPlanes();
             NWClippingPlanes cpCol = JsonUtils.Deserialize<NWClippingPlanes>(serialized);
             if (cpCol != null)
             {
-                if (cpCol.Planes != null) 
+                if (cpCol.Planes != null && cpCol.Enabled)
                 {
                     cpCol.Planes.ForEach(p => {
                         if(p.Normal != null && p.Enabled)
