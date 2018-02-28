@@ -135,6 +135,7 @@
     <Compile Include="Converters\UriToImageConv.cs" />
     <Compile Include="Classes\IfcGuid.cs" />
     <Compile Include="IPC\AddIssueResponse.cs" />
+    <Compile Include="UserControls\AttachedProperties\NavigationService.cs" />
     <Compile Include="UserControls\BCFPanel.xaml.cs">
       <DependentUpon>BCFPanel.xaml</DependentUpon>
     </Compile>

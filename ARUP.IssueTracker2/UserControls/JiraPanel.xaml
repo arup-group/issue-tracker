@@ -7,6 +7,7 @@
              xmlns:ctr="clr-namespace:ARUP.IssueTracker.UserControls"
              xmlns:toolkit="http://schemas.microsoft.com/wpf/2008/toolkit"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:ARUP.IssueTracker.UserControls.AttachedProperties"
              mc:Ignorable="d" MinHeight="300" MinWidth="700" Background="White" x:Name="jiraPan">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -368,7 +369,7 @@
                     <Label Content="Description:"  Grid.Row="4" Grid.Column="2" FontWeight="Bold" Visibility="{Binding ElementName=issueList, Path=SelectedItem.fields.descripton, Converter={StaticResource stringVisibConverter}}"/>
                     <StackPanel Orientation="Vertical" Background="White" >
                         <TextBlock Padding="5" Margin="5" TextWrapping="Wrap" Background="WhiteSmoke" DataContext="{Binding ElementName=issueList, Path=SelectedItem}">
-                                            <Run Text="{Binding fields.description}" />
+                                            <TextBlock local:NavigationService.Text="{Binding fields.description}" HorizontalAlignment="Stretch" TextWrapping="Wrap" />
                                             <LineBreak/>
                                             <InlineUIContainer>                                                
                                                 <Button Margin="5" Cursor="Hand" ToolTip="Click to open snapshot"  Visibility="{Binding snapshot, Converter={StaticResource stringVisibConverter}}"  HorizontalAlignment="Stretch"   
@@ -448,7 +449,7 @@
                                     </Expander.HeaderTemplate>
                                     <StackPanel>
                                         <TextBlock Padding="5" HorizontalAlignment="Stretch" TextWrapping="Wrap">
-                                            <Run Text="{Binding body}" />
+                                            <TextBlock local:NavigationService.Text="{Binding body}" HorizontalAlignment="Stretch" TextWrapping="Wrap" />
                                             <LineBreak/>
                                             <InlineUIContainer>                                                
                                                 <Button Margin="5" Cursor="Hand" ToolTip="Click to open snapshot"  Visibility="{Binding snapshotThumbnailUrl, Converter={StaticResource stringVisibConverter}}"  HorizontalAlignment="Stretch"   

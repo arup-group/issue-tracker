@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:src="clr-namespace:ARUP.IssueTracker.Converters"
+             xmlns:local="clr-namespace:ARUP.IssueTracker.UserControls.AttachedProperties"
              mc:Ignorable="d" MinHeight="300" MinWidth="600" Background="White" >
 
     <UserControl.Resources>
@@ -352,7 +353,7 @@
                 <Label Content="Description:"  Grid.Row="4" Grid.Column="2" FontWeight="Bold" Visibility="{Binding ElementName=issueList, Path=SelectedItem.Topic.Description, Converter={StaticResource stringVisibConverter}}"/>
                 <StackPanel Orientation="Vertical" Background="White" >
                     <TextBlock Padding="5" Margin="5" TextWrapping="Wrap" Background="WhiteSmoke" DataContext="{Binding ElementName=issueList, Path=SelectedItem}">
-                                            <Run Text="{Binding Topic.Description}" />
+                                            <TextBlock local:NavigationService.Text="{Binding fields.description}" HorizontalAlignment="Stretch" TextWrapping="Wrap" />
                                             <LineBreak/>
                                             <InlineUIContainer>                                                
                                                 <Button Margin="5" Cursor="Hand" ToolTip="Click to open snapshot"  Visibility="Collapsed"  HorizontalAlignment="Stretch"   
@@ -406,7 +407,7 @@
                                 </Expander.HeaderTemplate>
                                 <StackPanel>
                                     <TextBlock Padding="5" HorizontalAlignment="Stretch" TextWrapping="Wrap">
-                                        <Run Text="{Binding Comment1}" />
+                                        <TextBlock local:NavigationService.Text="{Binding Comment1}" HorizontalAlignment="Stretch" TextWrapping="Wrap" />            
                                         <LineBreak/>
                                         <InlineUIContainer>                                                
                                             <Button Margin="5" Cursor="Hand" ToolTip="Click to open snapshot"  Visibility="{Binding snapshotFullUrl, Converter={StaticResource stringVisibConverter}}"  HorizontalAlignment="Stretch"   
