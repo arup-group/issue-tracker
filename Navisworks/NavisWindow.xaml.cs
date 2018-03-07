@@ -905,9 +905,9 @@ namespace ARUP.IssueTracker.Navisworks
 #if NAVIS2017 || NAVIS2018
             string serialized = _oDoc.ActiveView.GetClippingPlanes();
             NWClippingPlanes cpCol = JsonUtils.Deserialize<NWClippingPlanes>(serialized);
-            if (cpCol != null)
+            if (cpCol != null && cpCol.Enabled)
             {
-                if (cpCol.Planes != null && cpCol.Enabled)
+                if (cpCol.Planes != null)
                 {
                     cpCol.Planes.ForEach(p => {
                         if(p.Normal != null && p.Enabled)
@@ -919,6 +919,38 @@ namespace ARUP.IssueTracker.Navisworks
                             }
                         }
                     });
+                }
+                else if (cpCol.OrientedBox != null && cpCol.OrientedBox.Box != null)
+                {
+                    // handle max/min
+                    Vector3D minPoint = new Vector3D(cpCol.OrientedBox.Box[0][0], cpCol.OrientedBox.Box[0][1], cpCol.OrientedBox.Box[0][2]);
+                    Vector3D maxPoint = new Vector3D(cpCol.OrientedBox.Box[1][0], cpCol.OrientedBox.Box[1][1], cpCol.OrientedBox.Box[1][2]);
+                    Vector3D newOrigin = (minPoint + maxPoint) / 2;
+                    Vector3D newMinPoint = minPoint - newOrigin;
+                    Vector3D newMaxPoint = maxPoint - newOrigin;
+                    double xRotationRadian = cpCol.OrientedBox.Rotation[0] * Math.PI / 180;
+                    double yRotationRadian = cpCol.OrientedBox.Rotation[1] * Math.PI / 180;
+                    double zRotationRadian = cpCol.OrientedBox.Rotation[2] * Math.PI / 180;
+                    Vector3D rotatedNewMinPoint = RotateVectorAroundAxis(newMinPoint, xRotationRadian, yRotationRadian, zRotationRadian);
+                    Vector3D rotatedNewMaxPoint = RotateVectorAroundAxis(newMaxPoint, xRotationRadian, yRotationRadian, zRotationRadian);
+                    Vector3D rotatedOriginalMinPoint = rotatedNewMinPoint + newOrigin;
+                    Vector3D rotatedOriginalMaxPoint = rotatedNewMaxPoint + newOrigin;
+                    
+                    // handle six normal directions
+                    Vector3D rotatedTop = RotateVectorAroundAxis(new Vector3D(0, 0, 1), xRotationRadian, yRotationRadian, zRotationRadian).Normalize();
+                    Vector3D rotatedBottom = RotateVectorAroundAxis(new Vector3D(0, 0, -1), xRotationRadian, yRotationRadian, zRotationRadian).Normalize();
+                    Vector3D rotatedFront = RotateVectorAroundAxis(new Vector3D(1, 0, 0), xRotationRadian, yRotationRadian, zRotationRadian).Normalize();
+                    Vector3D rotatedBack = RotateVectorAroundAxis(new Vector3D(-1, 0, 0), xRotationRadian, yRotationRadian, zRotationRadian).Normalize();
+                    Vector3D rotatedLeft = RotateVectorAroundAxis(new Vector3D(0, 1, 0), xRotationRadian, yRotationRadian, zRotationRadian).Normalize();
+                    Vector3D rotatedRight = RotateVectorAroundAxis(new Vector3D(0, -1, 0), xRotationRadian, yRotationRadian, zRotationRadian).Normalize();
+
+                    // write to BCF clipping planes
+                    sectionPlanes.Add(ConvertToBcfClippingPlane(rotatedTop, rotatedOriginalMaxPoint));
+                    sectionPlanes.Add(ConvertToBcfClippingPlane(rotatedBottom, rotatedOriginalMinPoint));
+                    sectionPlanes.Add(ConvertToBcfClippingPlane(rotatedFront, rotatedOriginalMaxPoint));
+                    sectionPlanes.Add(ConvertToBcfClippingPlane(rotatedBack, rotatedOriginalMinPoint));
+                    sectionPlanes.Add(ConvertToBcfClippingPlane(rotatedLeft, rotatedOriginalMaxPoint));
+                    sectionPlanes.Add(ConvertToBcfClippingPlane(rotatedRight, rotatedOriginalMinPoint));
                 }
             }
 #else
@@ -957,6 +989,27 @@ namespace ARUP.IssueTracker.Navisworks
             }
 #endif
             return sectionPlanes;
+        }
+        private Vector3D RotateVectorAroundAxis(Vector3D vectorToRotate, double xRotationRadian, double yRotationRadian, double zRotationRadian) 
+        {
+            // rotate around Z
+            Vector3D zRotated = new Vector3D(vectorToRotate.X * Math.Cos(zRotationRadian) - vectorToRotate.Y * Math.Sin(zRotationRadian),
+                                                vectorToRotate.X * Math.Sin(zRotationRadian) + vectorToRotate.Y * Math.Cos(zRotationRadian),
+                                                vectorToRotate.Z);
+            Vector3D yRotated = new Vector3D(zRotated.X * Math.Cos(yRotationRadian) + zRotated.Z * Math.Sin(yRotationRadian),
+                                                zRotated.Y,
+                                                -zRotated.X * Math.Sin(yRotationRadian) + zRotated.Z * Math.Cos(yRotationRadian));
+            Vector3D xRotated = new Vector3D(yRotated.X,
+                                                yRotated.Y * Math.Cos(xRotationRadian) - yRotated.Z * Math.Sin(xRotationRadian),
+                                                yRotated.Y * Math.Sin(xRotationRadian) + yRotated.Z * Math.Cos(xRotationRadian));
+            return xRotated;
+        }
+        private ClippingPlane ConvertToBcfClippingPlane(Vector3D normal, Vector3D pointOnPlane)
+        {
+            ClippingPlane sp = new ClippingPlane();
+            sp.Direction = new Direction() { X = normal.X, Y = normal.Y, Z = normal.Z };
+            sp.Location = new ARUP.IssueTracker.Classes.BCF2.Point() { X = pointOnPlane.X / GetGunits(), Y = pointOnPlane.Y / GetGunits(), Z = pointOnPlane.Z / GetGunits() };
+            return sp;
         }
         private ClippingPlane ConvertToBcfClippingPlane(double normalX, double normalY, double normalZ, double distance) 
         {

@@ -20,8 +20,16 @@ namespace ARUP.IssueTracker.Navisworks
         public string Type { get; set; }
         public int Version { get; set; }
         public List<Plane> Planes { get; set; }
+        public Orientedbox OrientedBox { get; set; }
         public bool Linked { get; set; }
         public bool Enabled { get; set; }
     }
 
+    public class Orientedbox
+    {
+        public string Type { get; set; }
+        public int Version { get; set; }
+        public float[][] Box { get; set; }
+        public float[] Rotation { get; set; }
+    }
 }
