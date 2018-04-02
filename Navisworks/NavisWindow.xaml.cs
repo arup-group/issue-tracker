@@ -599,86 +599,17 @@ namespace ARUP.IssueTracker.Navisworks
             {
                 MessageBox.Show("exception: " + ex1);
             }
-        }
-        // for creating saved viewpoints using BCF 2.0 VisualizationInfo
-        private Viewpoint GetViewpointFromVisualizationInfo(VisualizationInfo visInfo) 
+        }        
+        private Viewpoint Open3DView(VisualizationInfo v)
         {
             try
             {
-                Tuple<Point3D, Vector3D, Vector3D, ViewpointProjection, double> tuple = null;
-                tuple = GetViewCoordinatesFromBcf2VisInfo(visInfo);        
-
-                if (tuple == null)
-                {
-                    MessageBox.Show("Viewpoint not formatted correctly.", "Viewpoint Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return null;
-                }
-
-                Document oDoc = Autodesk.Navisworks.Api.Application.ActiveDocument;
-
-                // get current viewpoint
-                // Viewpoint oCurVP = oDoc.vi.CurrentViewpoint.ToViewpoint;
-                // get copy viewpoint
-                Viewpoint oCopyVP = new Viewpoint();
-
-
-
-                oCopyVP.AlignDirection(tuple.Item3);
-                oCopyVP.AlignUp(tuple.Item2);
-                oCopyVP.Projection = tuple.Item4;
-
-
-
-                // **** CUSTOM VALUE FOR TEKLA **** //
-                // otherwise = 1
-                // **** CUSTOM VALUE FOR TEKLA **** //
-                const double TEKLA = 1.25;
-
-                double x = tuple.Item5 / TEKLA;
-
-
-                if (oCopyVP.Projection == ViewpointProjection.Orthographic)
-                {
-
-                    oCopyVP.Position = tuple.Item1;
-                    oCopyVP.FocalDistance = 1;
-                    //top center point of view
-                    Point3D xyzTL = oCopyVP.Position.Add(tuple.Item2.Multiply(x));
-                    oCopyVP.SetExtentsAtFocalDistance(1, xyzTL.DistanceTo(oCopyVP.Position));
-                }
-                else
-                {
-                    //double angle = tuple.Item5 * Math.PI / 180;
-                    // MessageBox.Show(tuple.Item5.ToString() + "  " +(Math.Tan(angle / 2)*2).ToString());
-                    oCopyVP.FocalDistance = tuple.Item5;
-                    //oCopyVP.SetExtentsAtFocalDistance(Math.Tan(angle / 2) * 2, Math.Tan(angle / 2) * 2 / oCopyVP.AspectRatio);
-                    oCopyVP.Position = tuple.Item1;
-                }
-
-                //SavedViewpoint sv = new SavedViewpoint(oCopyVP);
-                //sv.DisplayName = "test view";
-                //sv.Guid = Guid.NewGuid();
-                //oDoc.SavedViewpoints.AddCopy(sv);
-                return oCopyVP;
-
-            
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-                return null;
-            }
-        }
-        private void Open3DView(VisualizationInfo v)
-        {
-            try
-            {                
                 Tuple<Point3D, Vector3D, Vector3D, ViewpointProjection, double> tuple = GetViewCoordinatesFromBcf2VisInfo(v);
 
                 if (tuple == null)
                 {
                     MessageBox.Show("Viewpoint not formatted correctly.", "Viewpoint Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
+                    return null;
                 }
 
                 Document oDoc = Autodesk.Navisworks.Api.Application.ActiveDocument;
@@ -706,7 +637,6 @@ namespace ARUP.IssueTracker.Navisworks
 
                 if (oCopyVP.Projection == ViewpointProjection.Orthographic)
                 {
-
                     oCopyVP.Position = tuple.Item1;
                     oCopyVP.FocalDistance = 1;
                     //top center point of view
@@ -821,12 +751,13 @@ namespace ARUP.IssueTracker.Navisworks
                     }                    
                 }
 
+                return oDoc.CurrentViewpoint.ToViewpoint();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
-            }           
-
+                return null;
+            }
         }
         public void SelectElements(List<ARUP.IssueTracker.Classes.BCF2.Component> components) 
         {
@@ -1125,7 +1056,10 @@ namespace ARUP.IssueTracker.Navisworks
         private int CreateSavedViewpoint(bool isJira)
         {
             try
-            {              
+            {
+                int counter = 0;
+                Progress progress = Autodesk.Navisworks.Api.Application.BeginProgress("Save Viewpoint", "Creating Saved Viewpoint from BCF viewpoints...");
+
                 //temp containers
                 List<Autodesk.Navisworks.Api.FolderItem> folderItems = new List<Autodesk.Navisworks.Api.FolderItem>();
 
@@ -1137,7 +1071,7 @@ namespace ARUP.IssueTracker.Navisworks
                     {
                         MessageBox.Show("Please select an issue.", "No Issue", MessageBoxButton.OK, MessageBoxImage.Error);
                         return -1;
-                    }
+                    }                    
                     foreach (object t in mainPan.jiraPan.issueList.SelectedItems)
                     {
                         int index = mainPan.jiraPan.issueList.Items.IndexOf(t);
@@ -1178,7 +1112,7 @@ namespace ARUP.IssueTracker.Navisworks
                                     errors++;
                                     continue;
                                 }
-                                Viewpoint navisworksViewpoint = GetViewpointFromVisualizationInfo(issueViewpoint);
+                                Viewpoint navisworksViewpoint = Open3DView(issueViewpoint);
                                 if (navisworksViewpoint == null)
                                 {
                                     errors++;
@@ -1252,6 +1186,9 @@ namespace ARUP.IssueTracker.Navisworks
                                 continue;
                             }
                         }
+
+                        double currentProgress = (double)++counter / (double)mainPan.jiraPan.issueList.SelectedItems.Count;
+                        progress.Update(currentProgress);
                     }
                 }
                 else 
@@ -1282,7 +1219,7 @@ namespace ARUP.IssueTracker.Navisworks
                                 errors++;
                                 continue;
                             }
-                            Viewpoint navisworksViewpoint = GetViewpointFromVisualizationInfo(issueViewpoint);
+                            Viewpoint navisworksViewpoint = Open3DView(issueViewpoint);
                             if (navisworksViewpoint == null)
                             {
                                 errors++;
@@ -1370,20 +1307,23 @@ namespace ARUP.IssueTracker.Navisworks
                             errors++;
                             continue;
                         }
+
+                        double currentProgress = (double)++counter / (double)mainPan.bcfPan.issueList.SelectedItems.Count;
+                        progress.Update(currentProgress);
                     }
                 }                
                 
                 // add new issues
-                folderItems.ForEach(f => _oDoc.SavedViewpoints.AddCopy(this.topFolder, f));              
+                folderItems.ForEach(f => _oDoc.SavedViewpoints.AddCopy(this.topFolder, f));
+
+                Autodesk.Navisworks.Api.Application.EndProgress();
 
                 if (errors != 0)
                 {
                     MessageBox.Show(errors + " viewpoints(s) were not generated because of missing files or wrong formats of viewpoint.bcfv.",
                         "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-
                 return -1;
-
             }
             catch(Exception ex)
             {
