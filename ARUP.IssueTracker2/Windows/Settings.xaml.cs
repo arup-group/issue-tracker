@@ -56,10 +56,12 @@ namespace ARUP.IssueTracker.Windows
             IRestResponse response = client.Execute(request);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                request = new RestRequest("/rest/api/2/field", Method.GET);
+                var request2 = new RestRequest("/rest/api/2/field", Method.GET);
+                IRestResponse<List<JiraCustomField>> response2 = null;
                 try
                 {
-                    JiraCustomField guidField = client.Execute<List<JiraCustomField>>(request).Data.Find(field => field.name == "GUID");
+                    response2 = client.Execute<List<JiraCustomField>>(request2);
+                    JiraCustomField guidField = response2.Data.Find(field => field.name == "GUID");
                     if (guidField != null)
                     {
                         activeAccount.guidfield = guidField.id;
@@ -72,15 +74,16 @@ namespace ARUP.IssueTracker.Windows
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(string.Format("Cannot connect to {0}. Please check with your Jira administrator!", activeAccount.jiraserver), "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
+                    RestCallback.LogRequest(client, request2, response2, ex);
+                    MessageBox.Show(string.Format("Cannot connect to {0}. Please check with your Jira administrator!\nStatus Code: " + response2.StatusCode.ToString(), activeAccount.jiraserver), "Warning", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             else
             {
-                MessageBox.Show("Login failed. Please check your username/password!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                RestCallback.LogRequest(client, request, response);
+                MessageBox.Show("Login failed. Please check your username/password!\nStatus Code: " + response.StatusCode.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
-            }
-                        
+            }                        
 
             DialogResult = true;
         }
