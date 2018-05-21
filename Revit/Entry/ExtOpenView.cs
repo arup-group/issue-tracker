@@ -533,6 +533,12 @@ namespace ARUP.IssueTracker.Revit.Entry
                     }
                 }
 
+                // change the coordinate system from Project to Shared
+                for (int i = 0; i < intersectedPoints.Count; i++)
+                {
+                    intersectedPoints[i] = ConvertToInternalAndSharedCoordinate(doc, intersectedPoints[i]);
+                }
+
                 // find rightmost, leftmost, topmost, and bottommost points
                 XYZ rightmost = intersectedPoints[0];
                 XYZ leftmost = intersectedPoints[0];
@@ -556,12 +562,6 @@ namespace ARUP.IssueTracker.Revit.Entry
                             bottommost = p;
                     }
                 }
-
-                // change the coordinate system from Project to Shared
-                rightmost = ConvertToInternalAndSharedCoordinate(doc, rightmost);
-                leftmost = ConvertToInternalAndSharedCoordinate(doc, leftmost);
-                topmost = ConvertToInternalAndSharedCoordinate(doc, topmost);
-                bottommost = ConvertToInternalAndSharedCoordinate(doc, bottommost);
 
                 // create diagonal and rotation vector
                 XYZ horizontalBase = new XYZ(-1, 0, 0);

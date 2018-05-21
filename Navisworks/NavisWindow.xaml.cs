@@ -15,6 +15,7 @@ using System.Data;
 using System.Xml.Serialization;
 using ARUP.IssueTracker.Classes.BCF2;
 using System.Text;
+using Autodesk.Navisworks.Api.Interop.ComApi;
 
 namespace ARUP.IssueTracker.Navisworks
 {
@@ -429,10 +430,9 @@ namespace ARUP.IssueTracker.Navisworks
                 string snapshot = Path.Combine(folderIssue, "snapshot.png");
                 int height = _oDoc.ActiveView.Height;
                 int width = _oDoc.ActiveView.Width;
-                System.Drawing.Bitmap oBitmap = _oDoc.ActiveView.GenerateThumbnail(width, height);
-                oBitmap.Save(snapshot, System.Drawing.Imaging.ImageFormat.Png);
-                oBitmap.Dispose();
-
+                ComApi.InwOpState10 state = ComApiBridge.ComApiBridge.State;
+                System.Drawing.Image image = ImageUtilities.ConvertFromIPicture(state.CreatePicture(state.CurrentView, Type.Missing, width, height) as object) as System.Drawing.Image;
+                image.Save(snapshot, System.Drawing.Imaging.ImageFormat.Png);
             }
             catch (System.Exception ex1)
             {
@@ -1556,5 +1556,29 @@ namespace ARUP.IssueTracker.Navisworks
     }
 
         #endregion
+    }
+
+    public static class ImageUtilities
+    {
+        public static object ConvertFromIPicture(object image)
+        {
+            return ImageOLEConverter.Instance.ConvertFromIPicture(image);
+        }
+
+        private class ImageOLEConverter : System.Windows.Forms.AxHost
+        {
+            public static readonly ImageOLEConverter Instance = new
+            ImageOLEConverter();
+
+            private ImageOLEConverter()
+                : base(Guid.Empty.ToString())
+            {
+            }
+
+            public object ConvertFromIPicture(object image)
+            {
+                return System.Windows.Forms.AxHost.GetPictureFromIPicture(image);
+            }
+        }
     }
 }
