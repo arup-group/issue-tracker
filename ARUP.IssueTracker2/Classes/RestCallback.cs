@@ -63,7 +63,7 @@ namespace ARUP.IssueTracker.Classes
                         string error = response.StatusDescription;
                         if (string.IsNullOrWhiteSpace(error))
                             error = "Please check your connection.";
-                        MessageBox.Show(error, response.ResponseStatus.ToString(), MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(error, string.Format("{0}: {1}", response.StatusCode, response.StatusDescription), MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     return false;
                 }
