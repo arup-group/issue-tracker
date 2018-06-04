@@ -75,8 +75,8 @@ namespace ARUP.IssueTracker.UserControls.AttachedProperties
         {
           var matchString = match.Value.Replace("[", "").Replace("]", "");
           Uri url = null;
-          //if (!Uri.TryCreate(matchString, UriKind.RelativeOrAbsolute, out url))
-          //  continue;
+          Uri.TryCreate(matchString, UriKind.RelativeOrAbsolute, out url);
+          
           // Copy raw string from the last position up to the match
           if (match.Index != last_pos)
           {
@@ -114,7 +114,8 @@ namespace ARUP.IssueTracker.UserControls.AttachedProperties
       // Do something with link.NavigateUri like:
       try
       {
-        Process.Start(link.NavigateUri.ToString());
+        string url = link.NavigateUri != null ? link.NavigateUri.ToString() : string.Join("", link.Inlines.Select(inline => ((Run)inline).Text));
+        Process.Start(url);
       }
       catch (System.Exception ex1)
       {
