@@ -78,6 +78,8 @@ namespace ARUP.IssueTracker.Navisworks
                 string versionNumber = "2017";
 #elif NAVIS2018
                 string versionNumber = "2018";
+#elif NAVIS2019
+                string versionNumber = "2019";
 #endif
 
             // Version

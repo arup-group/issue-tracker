@@ -5,8 +5,8 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ARUP.IssueTracker.Navisworks.2015")]
-[assembly: AssemblyDescription("ARUP.IssueTracker.Navisworks.2015")]
+[assembly: AssemblyTitle("ARUP.IssueTracker.Navisworks.2019")]
+[assembly: AssemblyDescription("ARUP.IssueTracker.Navisworks.2019")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Arup")]
 [assembly: AssemblyProduct("ARUP.IssueTracker.Navisworks")]

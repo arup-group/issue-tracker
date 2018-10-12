@@ -833,7 +833,7 @@ namespace ARUP.IssueTracker.Navisworks
         {
             List<ClippingPlane> sectionPlanes = new List<ClippingPlane>();
 
-#if NAVIS2017 || NAVIS2018
+#if NAVIS2017 || NAVIS2018 || NAVIS2019
             string serialized = _oDoc.ActiveView.GetClippingPlanes();
             NWClippingPlanes cpCol = JsonUtils.Deserialize<NWClippingPlanes>(serialized);
             if (cpCol != null && cpCol.Enabled)

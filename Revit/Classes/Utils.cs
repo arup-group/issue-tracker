@@ -43,7 +43,11 @@ namespace ARUP.IssueTracker.Revit.Classes
 
             ProjectLocation projectLocation = doc.ActiveProjectLocation;
             XYZ origin = new XYZ(0, 0, 0);
+#if REVIT2019
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#else
             ProjectPosition position = projectLocation.get_ProjectPosition(origin);
+#endif
 
             int i = (negative) ? -1 : 1;
             //foreach (Element element in elements)
@@ -83,24 +87,6 @@ namespace ARUP.IssueTracker.Revit.Classes
             return new ViewOrientation3D(newC, newUp, newView);
         }
 
-        // not used for now
-        public static XYZ SharedToModelCoordinate(Document doc, XYZ c)
-        {
-            ProjectPosition projectPosition = doc.ActiveProjectLocation.get_ProjectPosition(XYZ.Zero);
-            Transform t1 = Transform.CreateTranslation(new XYZ(-projectPosition.EastWest, -projectPosition.NorthSouth, -projectPosition.Elevation));
-            Transform t2 = Transform.CreateRotation(XYZ.BasisZ, -projectPosition.Angle);
-            return t2.OfPoint(t1.OfPoint(c));
-        }
-
-        // not used for now
-        public static XYZ ModelToSharedCoordinate(Document doc, XYZ c)
-        {
-            ProjectPosition projectPosition = doc.ActiveProjectLocation.get_ProjectPosition(XYZ.Zero);
-            Transform t1 = Transform.CreateTranslation(new XYZ(projectPosition.EastWest, projectPosition.NorthSouth, projectPosition.Elevation));
-            Transform t2 = Transform.CreateRotation(XYZ.BasisZ, projectPosition.Angle);
-            return t1.OfPoint(t2.OfPoint(c));
-        }
-
         public static XYZ ConvertToFromSharedCoordinate(Document doc, XYZ c, bool negative)
         {
             double angle = 0;
@@ -115,7 +101,12 @@ namespace ARUP.IssueTracker.Revit.Classes
 
             ProjectLocation projectLocation = doc.ActiveProjectLocation;
             XYZ origin = new XYZ(0, 0, 0);
+
+#if REVIT2019
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#else
             ProjectPosition position = projectLocation.get_ProjectPosition(origin);
+#endif
 
             int i = (negative) ? -1 : 1;
             //foreach (Element element in elements)
@@ -161,7 +152,11 @@ namespace ARUP.IssueTracker.Revit.Classes
             List<ClippingPlane> clippingPlanes = new List<ClippingPlane>();
 
             // transform six normals to model coordinates and shared coordinates
+#if REVIT2019
+            ProjectPosition projectPosition = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero);
+#else
             ProjectPosition projectPosition = doc.ActiveProjectLocation.get_ProjectPosition(XYZ.Zero);
+#endif
             Transform t1 = Transform.CreateTranslation(new XYZ(projectPosition.EastWest, projectPosition.NorthSouth, projectPosition.Elevation));
             Transform t2 = Transform.CreateRotation(XYZ.BasisZ, projectPosition.Angle);
 

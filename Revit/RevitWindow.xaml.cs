@@ -613,7 +613,12 @@ namespace ARUP.IssueTracker.Revit
 
       ProjectLocation projectLocation = doc.ActiveProjectLocation;
       XYZ origin = new XYZ(0, 0, 0);
+
+#if REVIT2019
+      ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#else
       ProjectPosition position = projectLocation.get_ProjectPosition(origin);
+#endif
 
       int i = (negative) ? -1 : 1;
       //foreach (Element element in elements)

@@ -47,6 +47,8 @@ namespace ARUP.IssueTracker.Civil3D
                 string versionNumber = "21.0";
 #elif C3D2018
                 string versionNumber = "22.0";
+#elif C3D2019
+                string versionNumber = "23.0";
 #endif
 
                 // Version
@@ -93,7 +95,7 @@ namespace ARUP.IssueTracker.Civil3D
             for(int i=0; i<tokens.Count; i++)
             {
                 int version;
-                if(tokens[i] == "AutoCAD")
+                if(tokens[i] == "Autodesk")
                 {
                     startTokenIndex = i;
                 }

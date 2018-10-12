@@ -5,11 +5,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ARUP.IssueTracker.Navisworks.2015")]
-[assembly: AssemblyDescription("ARUP.IssueTracker.Navisworks.2015")]
+[assembly: AssemblyTitle("ARUP.IssueTracker.Revit.2019")]
+[assembly: AssemblyDescription("ARUP.IssueTracker.Revit.2019")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Arup")]
-[assembly: AssemblyProduct("ARUP.IssueTracker.Navisworks")]
+[assembly: AssemblyProduct("ARUP.IssueTracker.Revit")]
 [assembly: AssemblyCopyright("Copyright © Arup 2018")]
 [assembly: AssemblyTrademark("Arup")]
 [assembly: AssemblyCulture("")]
@@ -51,4 +51,4 @@ using System.Windows;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("2018.10.12.01")]
 [assembly: AssemblyFileVersion("2018.10.12.01")]
-[assembly: GuidAttribute("59068325-ACDC-4D23-892A-1C90C9434BF8")]
+[assembly: GuidAttribute("59068325-ACDC-4DB3-892A-1C90C9434BF8")]

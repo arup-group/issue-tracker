@@ -41,6 +41,8 @@ namespace ARUP.IssueTracker.Revit.Entry
                 string versionNumber = "2017";
 #elif REVIT2018
                 string versionNumber = "2018";
+#elif REVIT2019
+                string versionNumber = "2019";
 #endif
                 // Version
                 if (!application.ControlledApplication.VersionName.Contains(versionNumber))
