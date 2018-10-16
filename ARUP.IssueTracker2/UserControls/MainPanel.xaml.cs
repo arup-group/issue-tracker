@@ -668,39 +668,40 @@ namespace ARUP.IssueTracker.UserControls
 
                 JiraClient.Client = new RestClient(jiraserver);
                 JiraClient.Client.CookieContainer = new CookieContainer();
-                var request = new RestRequest("rest/auth/1/session", Method.POST);
-                request.AddHeader("Content-Type", "application/json");
-                request.RequestFormat = Arup.RestSharp.DataFormat.Json;
-                // request.Timeout = 4000;
 
-                request.AddBody(new
+                if (jiraserver.ToLower().Contains("atlassian.net"))
                 {
-                    username = usernameS,
-                    password = passwordS
-                });
+                    JiraClient.Client.Authenticator = new HttpBasicAuthenticator(usernameS, passwordS);
+                }
+                else 
+                {
+                    var request = new RestRequest("rest/auth/1/session", Method.POST);
+                    request.AddHeader("Content-Type", "application/json");
+                    request.RequestFormat = Arup.RestSharp.DataFormat.Json;
+                    // request.Timeout = 4000;
 
-                requests.Add(request);
+                    request.AddBody(new
+                    {
+                        username = usernameS,
+                        password = passwordS
+                    });
 
-
+                    requests.Add(request);
+                }               
 
                 var request2 = new RestRequest("rest/api/2/myself", Method.GET);
                 request2.AddHeader("Content-Type", "application/json");
                 request2.RequestFormat = Arup.RestSharp.DataFormat.Json;
 
-
                 requests.Add(request2);
                 BackgroundJira bj = new BackgroundJira();
                 bj.WorkerComplete += new EventHandler<ResponseArg>(connectToJiraCompleted);
                 bj.Start<Self>(requests, false);
-
-
             }
             catch (System.Exception ex1)
             {
                 MessageBox.Show("exception: " + ex1);
             }
-
-
         }
 
         private void connectToJiraCompleted(object sender, ResponseArg e)

@@ -17,6 +17,7 @@
             <Grid Margin="5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80" />
@@ -40,8 +41,8 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTextColumn Header="Jira Address" Binding="{Binding jiraserver}" Width="180" IsReadOnly="False"/>
-                        <DataGridTextColumn Header="Username" Binding="{Binding username}" Width="120" IsReadOnly="False"/>
-                        <DataGridTemplateColumn Header="Password" Width="120" IsReadOnly="False">
+                        <DataGridTextColumn Header="Username/Email" Binding="{Binding username}" Width="120" IsReadOnly="False"/>
+                        <DataGridTemplateColumn Header="Password/Token" Width="120" IsReadOnly="False">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <PasswordBox w:PasswordHelper.Attach="True" 
@@ -72,8 +73,7 @@
                         </DataGridTextColumn>-->
                     </DataGrid.Columns>
                 </DataGrid>
-
-                
+                <Button x:Name="addJiraCloudAccountButton" Grid.Row="1" Grid.ColumnSpan="2" Width="140" Margin="0,8,0,0" Padding="3" HorizontalAlignment="Right" Content="Add Jira Cloud Account" Click="addJiraCloudAccountButton_Click" />                
             </Grid>
         </GroupBox>
         <GroupBox Header="BCF Settings" Margin="5" Grid.Row="1">

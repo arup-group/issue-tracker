@@ -67,6 +67,7 @@
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -78,6 +79,7 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\BackgroundJira.cs" />
@@ -196,6 +198,9 @@
     <Compile Include="Windows\ICommentController.cs" />
     <Compile Include="IPC\IpcMessageStore.cs" />
     <Compile Include="IPC\IpcOperationType.cs" />
+    <Compile Include="Windows\JiraCloudSetup.xaml.cs">
+      <DependentUpon>JiraCloudSetup.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\PasswordHelper.cs" />
     <Compile Include="Windows\ProgressWin.xaml.cs">
       <DependentUpon>ProgressWin.xaml</DependentUpon>
@@ -272,6 +277,10 @@
     <Page Include="Windows\EditIssueTitle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\JiraCloudSetup.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\ProgressWin.xaml">
       <SubType>Designer</SubType>

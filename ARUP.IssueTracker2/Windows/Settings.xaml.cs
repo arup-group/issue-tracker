@@ -49,14 +49,22 @@ namespace ARUP.IssueTracker.Windows
             }
             var client = new RestClient(activeAccount.jiraserver);
             client.CookieContainer = new System.Net.CookieContainer();
+
+            bool isJiraCloud = false;
+            if (activeAccount.jiraserver.ToLower().Contains("atlassian.net"))
+            {
+                isJiraCloud = true;
+                client.Authenticator = new HttpBasicAuthenticator(activeAccount.username, activeAccount.password);
+            }
+
             var request = new RestRequest("/rest/auth/1/session", Method.POST);
             request.AddHeader("content-type", "application/json");
             string requestBody = "{\"username\": \"" + activeAccount.username + "\",\"password\": \"" + activeAccount.password + "\"}";
             request.AddParameter("application/json", requestBody, ParameterType.RequestBody);
             IRestResponse response = client.Execute(request);
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            if (isJiraCloud || response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                var request2 = new RestRequest("/rest/api/2/field", Method.GET);
+                var request2 = new RestRequest("/rest/api/2/field", Method.GET);                
                 IRestResponse<List<JiraCustomField>> response2 = null;
                 try
                 {
@@ -146,5 +154,14 @@ namespace ARUP.IssueTracker.Windows
                 return FindParent<T>(parentObject);
         }
 
+        private void addJiraCloudAccountButton_Click(object sender, RoutedEventArgs e)
+        {
+            JiraCloudSetup window = new JiraCloudSetup();
+            var result = window.ShowDialog();
+            if (result.HasValue && result.Value) 
+            {
+                MessageBox.Show(window.email + ": " + window.apiToken);
+            }
+        }
     }
 }

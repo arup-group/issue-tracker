@@ -1,0 +1,10 @@
+﻿<Window x:Class="ARUP.IssueTracker.Windows.JiraCloudSetup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Jira Cloud Setup" Height="500" Width="300"
+        WindowStyle="ToolWindow"  ResizeMode="NoResize" WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
+    <Grid x:Name="container">
+        <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <TextBlock Text="Please wait while Arup Issue Tracker is trying to connect to Jira Cloud..." TextWrapping="WrapWithOverflow" Margin="5"/>
+    </Grid>
+</Window>
