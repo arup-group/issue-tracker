@@ -160,7 +160,11 @@ namespace ARUP.IssueTracker.Windows
             var result = window.ShowDialog();
             if (result.HasValue && result.Value) 
             {
-                MessageBox.Show(window.email + ": " + window.apiToken);
+                List<JiraAccount> accounts = jiraAccounts.ItemsSource as List<JiraAccount>;
+                accounts.ForEach(ac => ac.active = false);
+                accounts.Add(new JiraAccount() { active = true, jiraserver = window.jiraCloudAddress, username = window.email, password = window.apiToken });
+                jiraAccounts.Items.Refresh();
+                Button_Click_1(null, null);
             }
         }
     }

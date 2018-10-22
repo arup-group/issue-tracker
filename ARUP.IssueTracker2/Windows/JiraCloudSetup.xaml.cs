@@ -21,47 +21,36 @@ namespace ARUP.IssueTracker.Windows
     /// </summary>
     public partial class JiraCloudSetup : Window
     {
-        private readonly string tokenGenerationUrl = "https://id.atlassian.com/manage/api-tokens";
+        private readonly string logoutUrl = "https://id.atlassian.com/logout";
         private readonly string authScriptUrl = "http://to.arup.sg/aitjiracloudauth";
         public System.Windows.Forms.Integration.WindowsFormsHost host;
         public System.Windows.Forms.WebBrowser webBrowser;
         private string authScriptText;
+
+        public string jiraCloudAddress;
         public string email;
         public string apiToken;
 
         public JiraCloudSetup()
         {
-            InitializeComponent();
-
-            // initialize web browser control
-            webBrowser = new System.Windows.Forms.WebBrowser();
-            ObjectForScriptingHelper helper = new ObjectForScriptingHelper(this);
-            webBrowser.ObjectForScripting = helper;
-            webBrowser.AllowWebBrowserDrop = false;
-            webBrowser.IsWebBrowserContextMenuEnabled = false;
-            webBrowser.WebBrowserShortcutsEnabled = false;
-            webBrowser.DocumentCompleted += webBrowser_DocumentCompleted;
-
-            // add to grid
-            host = new System.Windows.Forms.Integration.WindowsFormsHost();
-            host.Child = webBrowser;
-            container.Children.Add(host);
+            InitializeComponent();            
 
             // download auth script from Github Gist
             try 
             {
                 using (var wc = new System.Net.WebClient())
                 {
-                    authScriptText = wc.DownloadString("");
+                    authScriptText = wc.DownloadString(authScriptUrl);
                 }
             }
             catch(Exception ex)
             {
+                // Remember to fix C# string format quotation mark escape character when putting on Github Gist
                 authScriptText = @"
 
                     window.onload = function() {
-                        if(window.location.href.startsWith != undefined && !window.location.href.startsWith('https://id.atlassian.com/login')){                        
-                            if(window.location.href.startsWith('https://id.atlassian.com/manage/api-tokens')){
+                        if(window.location.href.startsWith != undefined){                        
+                            if(window.location.href.startsWith('https://id.atlassian.com/profile/profile.action')){
                                 window.external.hideControls();
                                 var allScripts = document.getElementsByTagName('script');
                                 var scriptText = allScripts[allScripts.length-1].innerText;
@@ -92,6 +81,11 @@ namespace ARUP.IssueTracker.Windows
                                 }).always(function (jqXHR, textStatus) {
                                     window.location.href = 'https://id.atlassian.com/logout';
                                 });
+                            }else if(window.location.href.startsWith('https://id.atlassian.com/logout')){
+                                var logoutButton = document.getElementById('logout-submit');
+                                if(logoutButton != undefined){
+                                    logoutButton.click();
+                                }
                             }
                         }else{
                             window.external.closeWindow();
@@ -100,14 +94,46 @@ namespace ARUP.IssueTracker.Windows
                 
                 ";
             }
-
-            // go to client app url
-            webBrowser.Navigate(new Uri(tokenGenerationUrl, UriKind.RelativeOrAbsolute));
         }
 
         public void webBrowser_DocumentCompleted(object sender, System.Windows.Forms.WebBrowserDocumentCompletedEventArgs e)
         {
             webBrowser.Document.InvokeScript("eval", new object[] { authScriptText.Replace("API_TOKEN_NAME", string.Format("Arup_Issue_Tracker_{0}", DateTime.Now.ToString())) });
+        }
+
+        private void submitJiraAddressButton_Click(object sender, RoutedEventArgs e)
+        {
+            // validation
+            Uri uriResult = null;
+            bool validUrl = !string.IsNullOrWhiteSpace(jiraAddressTextBox.Text) && Uri.TryCreate(jiraAddressTextBox.Text, UriKind.Absolute, out uriResult) && (uriResult.Scheme == Uri.UriSchemeHttps) && (uriResult.Host.EndsWith("atlassian.net"));
+            if (!validUrl)
+            {
+                MessageBox.Show("Invalid Jira Cloud address. Please double check your input.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            // initialize web browser control
+            webBrowser = new System.Windows.Forms.WebBrowser();
+            ObjectForScriptingHelper helper = new ObjectForScriptingHelper(this);
+            webBrowser.ObjectForScripting = helper;
+            webBrowser.AllowWebBrowserDrop = false;
+            webBrowser.IsWebBrowserContextMenuEnabled = false;
+            webBrowser.WebBrowserShortcutsEnabled = false;
+            webBrowser.DocumentCompleted += webBrowser_DocumentCompleted;
+
+            // add to grid
+            host = new System.Windows.Forms.Integration.WindowsFormsHost();
+            host.Child = webBrowser;
+            container.Children.Add(host);
+
+            // go to client app url
+            webBrowser.Navigate(new Uri(logoutUrl, UriKind.RelativeOrAbsolute));
+
+            // hide input
+            jiraCloudAddressInput.Visibility = System.Windows.Visibility.Hidden;
+
+            // set Jira Cloud address
+            jiraCloudAddress = "https://" + uriResult.Host;
         }
     }
 

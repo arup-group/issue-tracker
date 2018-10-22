@@ -4,7 +4,14 @@
         Title="Jira Cloud Setup" Height="500" Width="300"
         WindowStyle="ToolWindow"  ResizeMode="NoResize" WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
     <Grid x:Name="container">
-        <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-        <TextBlock Text="Please wait while Arup Issue Tracker is trying to connect to Jira Cloud..." TextWrapping="WrapWithOverflow" Margin="5"/>
+        <StackPanel x:Name="processingText" Visibility="Collapsed" Margin="5">            
+            <TextBlock Text="Please wait while Arup Issue Tracker is trying to connect to Jira Cloud..." TextWrapping="WrapWithOverflow"/>
+        </StackPanel>
+        <StackPanel x:Name="jiraCloudAddressInput" Margin="10">
+            <TextBlock Text="Enter Jira Cloud address below. For example, https://ovearup.atlassian.net" TextWrapping="WrapWithOverflow" />
+            <TextBox x:Name="jiraAddressTextBox" Margin="0,10,0,10" Text="https://ovearup.atlassian.net" />
+            <Button x:Name="submitJiraAddressButton" IsDefault="True" Content="Continue" Width="100" Click="submitJiraAddressButton_Click" />
+            <TextBlock Margin="0,10,0,10" FontSize="10" Text="This setup process does not work with on-premise Jira Server, such as http://jira.arup.com. Please contact your Jira Administrator if you are not sure which Jira address to use." TextWrapping="WrapWithOverflow" />
+        </StackPanel>
     </Grid>
 </Window>
