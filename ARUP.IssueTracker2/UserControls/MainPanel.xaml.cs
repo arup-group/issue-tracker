@@ -668,12 +668,8 @@ namespace ARUP.IssueTracker.UserControls
 
                 JiraClient.Client = new RestClient(jiraserver);
                 JiraClient.Client.CookieContainer = new CookieContainer();
-
-                if (jiraserver.ToLower().Contains("atlassian.net"))
-                {
-                    JiraClient.Client.Authenticator = new HttpBasicAuthenticator(usernameS, passwordS);
-                }
-                else 
+                JiraClient.Client.Authenticator = new HttpBasicAuthenticator(usernameS, passwordS);
+                if (!jiraserver.ToLower().Contains("atlassian.net")) 
                 {
                     var request = new RestRequest("rest/auth/1/session", Method.POST);
                     request.AddHeader("Content-Type", "application/json");
@@ -767,12 +763,14 @@ namespace ARUP.IssueTracker.UserControls
                 }
                 var client = new RestClient();
                 client.CookieContainer = JiraClient.Client.CookieContainer;
+                string usernameS = MySettings.Get("username");
+                string passwordS = DataProtector.DecryptData(MySettings.Get("password"));
+                client.Authenticator = new HttpBasicAuthenticator(usernameS, passwordS);
                 var request3 = new RestRequest(url, Method.GET);
                 var response3 = client.Execute(request3);
 
                 if (!RestCallback.Check(response3))
                     return;
-
 
                 VisualizationInfo viewpoint = deserializeView(response3.Content);
                 if (null != viewpoint)
@@ -1053,6 +1051,9 @@ namespace ARUP.IssueTracker.UserControls
         {
             var client = new RestClient();
             client.CookieContainer = JiraClient.Client.CookieContainer;
+            string usernameS = MySettings.Get("username");
+            string passwordS = DataProtector.DecryptData(MySettings.Get("password"));
+            client.Authenticator = new HttpBasicAuthenticator(usernameS, passwordS);
             var request = new RestRequest(ca, Method.GET);
 
             var response = client.Execute(request);
@@ -2448,6 +2449,9 @@ namespace ARUP.IssueTracker.UserControls
 
                 var client = new RestClient();
                 client.CookieContainer = JiraClient.Client.CookieContainer;
+                string usernameS = MySettings.Get("username");
+                string passwordS = DataProtector.DecryptData(MySettings.Get("password"));
+                client.Authenticator = new HttpBasicAuthenticator(usernameS, passwordS);
 
                 var response = client.Execute(request);
                 if (RestCallback.Check(response))

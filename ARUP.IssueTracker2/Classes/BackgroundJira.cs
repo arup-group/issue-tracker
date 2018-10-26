@@ -72,6 +72,9 @@ namespace ARUP.IssueTracker.Classes
                 {
                     client = new RestClient();
                     client.CookieContainer = JiraClient.Client.CookieContainer;
+                    string usernameS = MySettings.Get("username");
+                    string passwordS = DataProtector.DecryptData(MySettings.Get("password"));
+                    client.Authenticator = new HttpBasicAuthenticator(usernameS, passwordS);
                 }
                 BackgroundWorker worker = (BackgroundWorker)sender;
                 if (requests.Count > 1)
