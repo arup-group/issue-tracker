@@ -10,7 +10,7 @@ namespace ARUP.IssueTracker.Navisworks
     {
         public string Type { get; set; }
         public int Version { get; set; }
-        public List<Int64> Normal { get; set; }
+        public List<double> Normal { get; set; }
         public double Distance { get; set; }
         public bool Enabled { get; set; }
     }
