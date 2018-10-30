@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:src="clr-namespace:ARUP.IssueTracker.Converters;assembly=ARUP.IssueTracker"
         xmlns:ctr="clr-namespace:ARUP.IssueTracker.UserControls;assembly=ARUP.IssueTracker"
-        Title="Add Issues" Height="500" Width="500" Icon="pack://application:,,,/ARUP.IssueTracker;component/Assets/icon.ico">
+        Title="Add Issues" Height="500" Width="600" Icon="pack://application:,,,/ARUP.IssueTracker;component/Assets/icon.ico">
     <Window.Resources>
 
         <ResourceDictionary>
@@ -37,7 +37,7 @@
             <ListView.View>
 
                 <GridView >
-                    <GridViewColumn Header="Viewpoint" Width="150">
+                    <GridViewColumn Header="Saved Viewpoint Name" Width="150">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Label Content="{Binding Key.DisplayName}" />
@@ -51,7 +51,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Jira/BCF Issue Title" Width="250">
+                    <GridViewColumn Header="Folder Hierarchy" Width="350">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Label Content="{Binding Value}" />

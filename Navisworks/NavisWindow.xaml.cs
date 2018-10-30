@@ -227,24 +227,14 @@ namespace ARUP.IssueTracker.Navisworks
 
                 }
 
-                // Key: saved viewpoints; Value: BCF/Jira issue title (if it has)
-                Dictionary<SavedViewpoint, string> savedViewpointsAndIssueTitles = new Dictionary<SavedViewpoint, string>();
+                // Key: saved viewpoints; Value: folder structure
+                Dictionary<SavedViewpoint, string> savedViewpointsAndPaths = new Dictionary<SavedViewpoint, string>();
                 _savedViewpoints.ForEach(sv => {
-                    string originalIssueTitle = null;
-                    if (sv.Parent != null)
-                    {
-                        if (sv.Parent.Parent != null)
-                        {
-                            if (sv.Parent.Parent.DisplayName == "Issues from BCF/Jira")
-                            {
-                                originalIssueTitle = sv.Parent.DisplayName;
-                            }
-                        }
-                    }
-                    savedViewpointsAndIssueTitles.Add(sv, originalIssueTitle);
+                    string savedViewpointPath = getSavedViewpointPath(sv);
+                    savedViewpointsAndPaths.Add(sv, savedViewpointPath);
                 });
 
-                AddIssueNavis ain = new AddIssueNavis(savedViewpointsAndIssueTitles, types, assignees, components, priorities, noCom, noPrior, noAssign);
+                AddIssueNavis ain = new AddIssueNavis(savedViewpointsAndPaths, types, assignees, components, priorities, noCom, noPrior, noAssign);
                 if (!isBcf)
                 {
                     ain.JiraFieldsBox.Visibility = System.Windows.Visibility.Visible;
@@ -361,9 +351,9 @@ namespace ARUP.IssueTracker.Navisworks
                             }
 
                             // Check if it has an original BCF issue title
-                            if (savedViewpointsAndIssueTitles.ContainsKey(sv)) 
+                            if (savedViewpointsAndPaths.ContainsKey(sv)) 
                             {
-                                originalIssueTitle = savedViewpointsAndIssueTitles[sv];
+                                originalIssueTitle = savedViewpointsAndPaths[sv];
                             }
                         }
                         
@@ -423,6 +413,19 @@ namespace ARUP.IssueTracker.Navisworks
             }
             return null;
         }
+
+        private string getSavedViewpointPath(SavedViewpoint sv)
+        {
+            string path = string.Empty;
+            SavedItem item = sv.Parent;
+            while (item != null) 
+            {
+                path = string.Format("{0}/{1}", item.DisplayName, path);
+                item = item.Parent;
+            }
+            return path.Substring(0, path.Length-1); // remove the last slash
+        }
+
         public void generateSnapshot(string folderIssue)
         {
             try
