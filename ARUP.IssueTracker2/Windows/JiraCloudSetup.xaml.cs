@@ -33,7 +33,10 @@ namespace ARUP.IssueTracker.Windows
 
         public JiraCloudSetup()
         {
-            InitializeComponent();            
+            InitializeComponent();
+            jiraAddressComboBox.Text = "https://arupdigital.atlassian.net";
+            jiraAddressComboBox.Items.Add("https://arupdigital.atlassian.net");
+            jiraAddressComboBox.Items.Add("https://ovearup.atlassian.net");
 
             // download auth script from Github Gist
             try 
@@ -105,7 +108,7 @@ namespace ARUP.IssueTracker.Windows
         {
             // validation
             Uri uriResult = null;
-            bool validUrl = !string.IsNullOrWhiteSpace(jiraAddressTextBox.Text) && Uri.TryCreate(jiraAddressTextBox.Text, UriKind.Absolute, out uriResult) && (uriResult.Scheme == Uri.UriSchemeHttps) && (uriResult.Host.EndsWith("atlassian.net"));
+            bool validUrl = !string.IsNullOrWhiteSpace(jiraAddressComboBox.Text) && Uri.TryCreate(jiraAddressComboBox.Text, UriKind.Absolute, out uriResult) && (uriResult.Scheme == Uri.UriSchemeHttps) && (uriResult.Host.EndsWith("atlassian.net"));
             if (!validUrl)
             {
                 MessageBox.Show("Invalid Jira Cloud address. Please double check your input.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
