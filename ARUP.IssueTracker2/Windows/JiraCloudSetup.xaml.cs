@@ -53,7 +53,7 @@ namespace ARUP.IssueTracker.Windows
 
                     window.onload = function() {
                         if(window.location.href.startsWith != undefined){                        
-                            if(window.location.href.startsWith('https://id.atlassian.com/profile/profile.action')){
+                            if(window.location.href.startsWith('https://id.atlassian.com/manage/api-tokens')){
                                 window.external.hideControls();
                                 var allScripts = document.getElementsByTagName('script');
                                 var scriptText = allScripts[allScripts.length-1].innerText;
@@ -84,6 +84,9 @@ namespace ARUP.IssueTracker.Windows
                                 }).always(function (jqXHR, textStatus) {
                                     window.location.href = 'https://id.atlassian.com/logout';
                                 });
+                            }else if(window.location.href.startsWith('https://id.atlassian.com/manage-profile')){
+                                window.external.hideControls();
+                                window.location.href = 'https://id.atlassian.com/manage/api-tokens';
                             }else if(window.location.href.startsWith('https://id.atlassian.com/logout')){
                                 var logoutButton = document.getElementById('logout-submit');
                                 if(logoutButton != undefined){
@@ -123,6 +126,7 @@ namespace ARUP.IssueTracker.Windows
             webBrowser.IsWebBrowserContextMenuEnabled = false;
             webBrowser.WebBrowserShortcutsEnabled = false;
             webBrowser.DocumentCompleted += webBrowser_DocumentCompleted;
+            webBrowser.ScriptErrorsSuppressed = true;
 
             // add to grid
             host = new System.Windows.Forms.Integration.WindowsFormsHost();
