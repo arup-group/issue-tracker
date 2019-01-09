@@ -17,7 +17,7 @@ This is an important update since a new secured login method enforced by **Jira 
 <img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_3.jpg" width="400">
 
 ##### If you see the below script error popup when adding a Jira Cloud account, please dismiss it by clicking either Yes or No. Then it will proceed as usual. This is due to browser compatibility but it wouldn't affect how it should work. We will try to suppress this kind of popup in the next release.
-<img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_5.jpg" width="400">
+<img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_5.png" width="400">
 
 ### Step 5: Login is successful when you see this message. Your Jira projects and issues will be loaded after clicking “OK”.
-<img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_4.png" width="400">
+<img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_4.jpg" width="400">
