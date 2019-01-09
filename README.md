@@ -18,8 +18,8 @@ Please download the latest installer from the link below.
 [Download Installer (2018.11.1.1)](https://github.com/ArupAus/issue-tracker/releases/download/2018.11.01.01/Case_Issue_Tracker_2018.11.01.01.msi)
 
 ## Documentation
-
 [User Guide](https://arupaus.github.io/issue-tracker/Documentation/UserGuide)
+[Jira Cloud Account Setup Guide](https://arupaus.github.io/issue-tracker/Documentation/JiraCloudLogin)
 
 ## Screencasts
 [Video Playlist](https://media.arup.com/embedplaylist/secure/embed/playlistId/0_o01zfipb)
