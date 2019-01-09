@@ -19,6 +19,7 @@ Please download the latest installer from the link below.
 
 ## Documentation
 [User Guide](https://arupaus.github.io/issue-tracker/Documentation/UserGuide)
+
 [Jira Cloud Account Setup Guide](https://arupaus.github.io/issue-tracker/Documentation/JiraCloudLogin)
 
 ## Screencasts
