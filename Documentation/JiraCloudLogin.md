@@ -5,7 +5,7 @@ This is an important update since a new secured login method enforced by **Jira 
 [Download Installer (2018.11.1.1)](https://github.com/ArupAus/issue-tracker/releases/download/2018.11.01.01/Case_Issue_Tracker_2018.11.01.01.msi)
 
 ##### Please also make sure you have upgraded to Windows 10 and your Internet Explorer is up to date.
-![](https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_6.png?s=200)
+<img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_6.png" width="100" height="100">
 
 ### Step 2: Click “Add Jira Cloud Account” button in the Settings
 ![](https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_1.jpg?s=200)
