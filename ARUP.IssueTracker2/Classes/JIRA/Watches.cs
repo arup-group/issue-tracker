@@ -17,7 +17,12 @@ namespace ARUP.IssueTracker.Classes.JIRA
     public class Watcher
     {
         public string self { get; set; }
-        public string name { get; set; }
+        public string name
+        {
+            get { return accountId != null ? accountId : name; }
+            set { accountId = value; }
+        }
+        public string accountId { get; set; }
         public string displayName { get; set; }
         public bool active { get; set; }
     }

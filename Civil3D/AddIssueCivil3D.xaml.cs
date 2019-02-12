@@ -409,34 +409,33 @@ namespace ARUP.IssueTracker.Civil3D
 
         private void ChangeAssign_OnClick(object sender, RoutedEventArgs e)
         {
-             try
+            try
             {
-
-            // = getAssigneesIssue();
-            if (!assignees.Any())
-            {
-                MessageBox.Show("You don't have permission to Assign people to this Issue");
-                return;
-                //jira.issuesCollection[jiraPan.issueList.SelectedIndex].transitions = response2.Data.transitions;
-            }
-            ChangeAssignee cv = new ChangeAssignee(); cv.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            cv.SetList(assignees);
-            cv.valuesList.SelectedIndex = (ChangeAssign.Content.ToString() != "none") ? IndexByName.Get(ChangeAssign.Content.ToString(), "name", assignees) : -1;
+                // = getAssigneesIssue();
+                if (!assignees.Any())
+                {
+                    MessageBox.Show("You don't have permission to Assign people to this Issue");
+                    return;
+                    //jira.issuesCollection[jiraPan.issueList.SelectedIndex].transitions = response2.Data.transitions;
+                }
+                ChangeAssignee cv = new ChangeAssignee(); cv.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                cv.SetList(assignees);
+                cv.valuesList.SelectedIndex = (ChangeAssign.Content.ToString() != "none") ? IndexByName.Get(ChangeAssign.Content.ToString(), "name", assignees) : -1;
 
            
-            cv.Title = "Assign to";
-            cv.ShowDialog();
-            if (cv.DialogResult.HasValue && cv.DialogResult.Value)
+                cv.Title = "Assign to";
+                cv.ShowDialog();
+                if (cv.DialogResult.HasValue && cv.DialogResult.Value)
+                {
+                    User assign = (cv.valuesList.SelectedIndex >= cv.valuesList.Items.Count || cv.valuesList.SelectedIndex == -1) ? null : (User)cv.valuesList.SelectedItem;
+                    ChangeAssign.Content = (assign!=null) ? assign.displayName : "none";
+                    ChangeAssign.Tag = (assign != null) ? assign.name : null;
+                }
+            }
+            catch (System.Exception ex1)
             {
-                User assign = (cv.valuesList.SelectedIndex >= cv.valuesList.Items.Count || cv.valuesList.SelectedIndex == -1) ? null : (User)cv.valuesList.SelectedItem;
-                ChangeAssign.Content = (assign!=null) ?assign.name : "none";
-
+                MessageBox.Show("exception: " + ex1);
             }
-            }
-             catch (System.Exception ex1)
-             {
-                 MessageBox.Show("exception: " + ex1);
-             }
         }
 
         private void ChangeComponents_OnClick(object sender, RoutedEventArgs e)

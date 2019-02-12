@@ -66,7 +66,7 @@ namespace ARUP.IssueTracker.Windows
             if (cv.DialogResult.HasValue && cv.DialogResult.Value)
             {
                 selectedAssignee = (cv.valuesList.SelectedIndex >= cv.valuesList.Items.Count || cv.valuesList.SelectedIndex == -1) ? null : (User)cv.valuesList.SelectedItem;
-                ChangeAssign.Content = (selectedAssignee != null) ? selectedAssignee.name : "none";
+                ChangeAssign.Content = (selectedAssignee != null) ? selectedAssignee.displayName : "none";
             }
         }
 

@@ -62,7 +62,6 @@
                                  Source="{Binding avatarUrls.__invalid_name__32x32}" Grid.RowSpan="2" />
                     <Label Name="nameField"  FontWeight="Bold" Grid.Row="0" Grid.Column="1" Content="{Binding displayName}" VerticalAlignment="Bottom" />
                     <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1">
-                        <Label  Content="{Binding name}" />
                         <Label  Content="{Binding emailAddress}" />
                     </StackPanel>
 

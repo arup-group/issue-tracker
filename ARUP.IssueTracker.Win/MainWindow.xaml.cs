@@ -299,7 +299,7 @@ namespace ARUP.IssueTracker.Win
                             aid.ChangeAssign.Content.ToString() != "none")
                         {
                             issueJira.fields.assignee = new User();
-                            issueJira.fields.assignee.name = aid.ChangeAssign.Content.ToString();
+                            issueJira.fields.assignee.name = aid.ChangeAssign.Tag.ToString();
                         }
 
                         if (aid.SelectedComponents != null && aid.SelectedComponents.Any())

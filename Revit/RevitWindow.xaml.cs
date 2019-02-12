@@ -248,7 +248,7 @@ namespace ARUP.IssueTracker.Revit
                       air.ChangeAssign.Content.ToString() != "none")
                   {
                       issueJira.fields.assignee = new User();
-                      issueJira.fields.assignee.name = air.ChangeAssign.Content.ToString();
+                      issueJira.fields.assignee.name = air.ChangeAssign.Tag.ToString();
                   }
 
                   if (air.SelectedComponents != null && air.SelectedComponents.Any())

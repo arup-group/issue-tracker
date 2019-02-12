@@ -1358,18 +1358,21 @@ namespace ARUP.IssueTracker.UserControls
                         int index = jiraPan.issueList.Items.IndexOf(jiraPan.issueList.SelectedItems[i]);
 
 
-                        string user = (cv.valuesList.SelectedIndex == -1) ? null : ((User)cv.valuesList.SelectedItem).name;
+                        User user = (cv.valuesList.SelectedIndex == -1) ? null : ((User)cv.valuesList.SelectedItem);
                         var request2 = new RestRequest("issue/" + jira.IssuesCollection[index].key + "/assignee", Method.PUT);
                         request2.AddHeader("Content-Type", "application/json");
                         request2.RequestFormat = Arup.RestSharp.DataFormat.Json;
-                        var newissue =
-                                new
-                                {
-                                    name = user
-                                };
-                        request2.AddBody(newissue);
+                        if (JiraClient.Client.BaseUrl.ToLower().Contains("atlassian.net")) // work around GPDR requirement on Jira Cloud
+                        {
+                            var newissue = new { accountId = user.accountId };
+                            request2.AddBody(newissue);
+                        }
+                        else 
+                        {
+                            var newissue = new { name = user.name };
+                            request2.AddBody(newissue);
+                        }
                         requests.Add(request2);
-  
                     }
 
                     BackgroundJira bj = new BackgroundJira();

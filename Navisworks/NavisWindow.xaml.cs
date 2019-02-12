@@ -316,7 +316,7 @@ namespace ARUP.IssueTracker.Navisworks
                                 ain.ChangeAssign.Content.ToString() != "none")
                             {
                                 issueJira.fields.assignee = new User();
-                                issueJira.fields.assignee.name = ain.ChangeAssign.Content.ToString();
+                                issueJira.fields.assignee.name = ain.ChangeAssign.Tag.ToString();
                             }
 
                             if (ain.SelectedComponents != null && ain.SelectedComponents.Any())

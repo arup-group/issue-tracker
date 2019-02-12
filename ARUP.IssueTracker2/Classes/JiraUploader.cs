@@ -150,11 +150,11 @@ namespace ARUP.IssueTracker.Classes
                             {
                                 if (isAssigneeAssignable(issuesJira[i].fields.assignee.name, projectKey))
                                 {
-                                    newissue.fields.Add("assignee", new { name = issuesJira[i].fields.assignee.name });
+                                    newissue.fields.Add("assignee", new { name = issuesJira[i].fields.assignee.name, id = issuesJira[i].fields.assignee.accountId });
                                 }
                                 else
                                 {
-                                    newissue.fields.Add("assignee", new { name = issuesJira[i].fields.creator.name });
+                                    newissue.fields.Add("assignee", new { name = issuesJira[i].fields.creator.name, id = issuesJira[i].fields.creator.accountId });
                                 }
                             }
                         }                                              

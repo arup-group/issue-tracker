@@ -92,8 +92,8 @@ namespace ARUP.IssueTracker.Navisworks
             if (cv.DialogResult.HasValue && cv.DialogResult.Value)
             {
                 User assign = (cv.valuesList.SelectedIndex >= cv.valuesList.Items.Count || cv.valuesList.SelectedIndex == -1) ? null : (User)cv.valuesList.SelectedItem;
-                ChangeAssign.Content = (assign != null) ? assign.name : "none";
-
+                ChangeAssign.Content = (assign != null) ? assign.displayName : "none";
+                ChangeAssign.Tag = (assign != null) ? assign.name : null;
             }
         }
 

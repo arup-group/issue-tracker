@@ -3,8 +3,17 @@
     public class User
     {
         public string self { get; set; }
-        public string key { get; set; }
-        public string name { get; set; }
+        public string key
+        {
+            get { return accountId != null ? accountId : key; }
+            set { accountId = value; }
+        }
+        public string name 
+        {
+            get { return accountId != null ? accountId : name; }
+            set { accountId = value; } 
+        }
+        public string accountId { get; set; }
         public string emailAddress { get; set; }
         public AvatarUrls avatarUrls { get; set; }
         public string displayName { get; set; }

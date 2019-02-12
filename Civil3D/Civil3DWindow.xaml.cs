@@ -245,7 +245,7 @@ namespace ARUP.IssueTracker.Civil3D
                       aic.ChangeAssign.Content.ToString() != "none")
                   {
                       issueJira.fields.assignee = new User();
-                      issueJira.fields.assignee.name = aic.ChangeAssign.Content.ToString();
+                      issueJira.fields.assignee.name = aic.ChangeAssign.Tag.ToString();
                   }
 
                   if (aic.SelectedComponents != null && aic.SelectedComponents.Any())

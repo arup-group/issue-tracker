@@ -689,7 +689,7 @@ namespace ARUP.IssueTracker.Classes
                     // Convert Topic
                     BCF2.Topic bcf2Topic = new BCF2.Topic()
                     {
-                        AssignedTo = issue.fields.assignee == null ? null : issue.fields.assignee.name,
+                        AssignedTo = issue.fields.assignee == null ? null : issue.fields.assignee.displayName,
                         BimSnippet = null,
                         CreationAuthor = issue.fields.creator == null ? null : issue.fields.creator.displayName,
                         CreationDate = string.IsNullOrWhiteSpace(issue.fields.created) ? DateTime.Now : DateTime.Parse(issue.fields.created),
