@@ -73,6 +73,7 @@ namespace ARUP.IssueTracker.Windows
                     if (guidField != null)
                     {
                         activeAccount.guidfield = guidField.id;
+                        // FIXME: next gen projects?
                         MessageBox.Show(string.Format("The GUID field Id on {0} is {1}. Now you can create an issue with the plug-ins of Revit and Navisworks!", activeAccount.jiraserver, guidField.id), "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     else

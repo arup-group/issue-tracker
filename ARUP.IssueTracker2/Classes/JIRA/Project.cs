@@ -12,6 +12,7 @@ namespace ARUP.IssueTracker.Classes
         public Lead lead { get; set; }
         public AvatarUrls avatarUrls { get; set; }
         public List<Issuetype> issuetypes { get; set; }
+        public string customGuidFieldName { get; set; }
         public string formattedname
         {
             get

@@ -60,6 +60,9 @@
       <HintPath>..\packages\DotNetZip.1.9.2\lib\net20\Ionic.Zip.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -345,7 +348,8 @@
   <PropertyGroup>
     <PostBuildEvent>copy /Y "$(TargetDir)ARUP.IssueTracker.dll" "C:\Program Files (x86)\CASE\ARUP Issue Tracker\ARUP.IssueTracker.dll"
 copy /Y "$(TargetDir)Arup.RestSharp.dll" "C:\Program Files (x86)\CASE\ARUP Issue Tracker\Arup.RestSharp.dll"
-copy /Y "$(TargetDir)Ionic.Zip.dll" "C:\Program Files (x86)\CASE\ARUP Issue Tracker\Ionic.Zip.dll"</PostBuildEvent>
+copy /Y "$(TargetDir)Ionic.Zip.dll" "C:\Program Files (x86)\CASE\ARUP Issue Tracker\Ionic.Zip.dll"
+copy /Y "$(TargetDir)Newtonsoft.Json.dll" "C:\Program Files (x86)\CASE\ARUP Issue Tracker\Newtonsoft.Json.dll"</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>

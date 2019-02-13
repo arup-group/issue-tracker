@@ -4,8 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Windows;
 using System.Windows.Controls;
-
-//more references
 using System.IO;
 using IOPath = System.IO.Path;
 using System.ComponentModel;
@@ -22,6 +20,7 @@ using Arup.RestSharp;
 using System.Windows.Input;
 using System.Text;
 using System.Windows.Media.Imaging;
+using Newtonsoft.Json.Linq;
 
 namespace ARUP.IssueTracker.UserControls
 {
@@ -208,6 +207,33 @@ namespace ARUP.IssueTracker.UserControls
                     {
                         jira.ProjectsCollection.Add(project);
                     }
+
+                    // handle custom GUIDs
+                    var allProjects = JObject.Parse(response.Content);
+                    JArray projects = (JArray)allProjects["projects"];
+                    foreach (var project in projects)
+                    {
+                        var allIssueTypes = ((JArray)project["issuetypes"]);
+                        foreach (var issueType in allIssueTypes)
+                        {
+                            bool guidFound = false;
+                            foreach (var field in ((JObject)issueType["fields"]).Properties())
+                            {
+                                if ((string)field.Value["name"] == "GUID")
+                                {
+                                    var savedProject = jira.ProjectsCollection.First(p => p.key == (string)project["key"]);
+                                    savedProject.customGuidFieldName = field.Name;
+                                    guidFound = true;
+                                    break;
+                                }
+                            }
+                            if (guidFound)
+                            {                                
+                                break;
+                            }
+                        }                        
+                    }
+
                     getPriorities();                    
 
                     // populate recent projects
@@ -266,7 +292,12 @@ namespace ARUP.IssueTracker.UserControls
 
                 if (jiraPan.projIndex < 0)
                     return;
+                
+                // change custom guid field by project
+                MySettings.Set("guidfield", ((ARUP.IssueTracker.Classes.Project)jiraPan.projCombo.SelectedItem).customGuidFieldName);
+
                 getIssues(0);
+
                 //filters
                 jira.TypesCollection = new ObservableCollection<Issuetype>();
                 jira.ProjectsCollection[jiraPan.projIndex].issuetypes.OrderBy(o => o.id);
