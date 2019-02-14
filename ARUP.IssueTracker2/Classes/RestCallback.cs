@@ -45,7 +45,7 @@ namespace ARUP.IssueTracker.Classes
 
                         if (error.Contains("customfield"))  // when there's no custom field on Jira
                         {
-                            MessageBox.Show("The custom GUID field is missing from this Jira project. The Issue Tracker requires this field. Please ask your Jira administrators to check that the GUID field is part of the field configuration and visible on the Create/Edit screens for all issue types in this project.", 
+                            MessageBox.Show("The custom GUID field required by Arup Issue Tracker is missing. For a Next-gen Project on Jira Cloud, please make sure you have a Text Field called GUID for all Issue Types. For a Classic Project, please ask your Jira administrators to check that the GUID field is part of the field configuration and visible on the Create/Edit screens for all issue types in this project.", 
                                 response.StatusDescription, MessageBoxButton.OK, MessageBoxImage.Warning);
                         }
                         else if (error.Contains("Comment body can not be empty"))
