@@ -34,9 +34,9 @@ namespace ARUP.IssueTracker.Windows
         public JiraCloudSetup()
         {
             InitializeComponent();
-            jiraAddressComboBox.Text = "https://arupdigital.atlassian.net";
-            jiraAddressComboBox.Items.Add("https://arupdigital.atlassian.net");
+            jiraAddressComboBox.Text = "https://ovearup.atlassian.net";
             jiraAddressComboBox.Items.Add("https://ovearup.atlassian.net");
+            jiraAddressComboBox.Items.Add("https://arupdigital.atlassian.net");            
 
             // download auth script from Github Gist
             try 
