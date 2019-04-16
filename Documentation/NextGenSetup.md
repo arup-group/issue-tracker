@@ -1,0 +1,48 @@
+# Jira Cloud Next-gen Project Setup Guide
+This doc runs through a minimum setup for Next-gen project to work with Arup Issue Tracker. To increase userbase by simplifying Jira configuration, Atlassian has launched the Next-gen project last year on Jira Cloud (as opposed to Classic project). As it makes our lives easier (for both end-users and Jira project admins), we should be aiming to use it wherever it suits. A couple of quick facts about "Next gen":
+
+* It's more like Trello. More user friendly and easier to use.
+* It's also easier to create and configure projects. Project settings are isolated among projects. Jira Project Lead can tweak their projects without System Admin's help.
+* It's a trade-off between usability and functionality. There is limitation though Atlassian is adding more and more functions from "Classic" to "Next-gen".
+
+In a nutshell, Next-gen is recommended for most use cases. However, this is NOT a lesson 101 tutorial for Next-gen. Please look through the references below for more details before creating a Next-gen project. If not, it should be fairly straightforward if you are an active Jira user. As a side note, Next-gen project is only available on Jira Cloud (https://ovearup.atlassian.net). Our internal Jira Server (http://jira.arup.com) doesn't have this functionality. The logins are different.
+
+
+### Next-gen Project References
+[Video Podcast](https://www.youtube.com/watch?v=PQa3NFB_LRg&list=PLaD4FvsFdarR69HESUlY4IC7ae5k5znYp)
+
+[User Guide](https://confluence.atlassian.com/jirasoftwarecloud/working-with-next-gen-software-projects-945104895.html)
+
+[Classic vs. Next-gen Comparison](https://community.atlassian.com/t5/Next-gen-articles/Everything-you-want-to-know-about-next-gen-projects-in-Jira/ba-p/894773)
+
+
+
+### Access to Jira Cloud (Atlassian Cloud)
+Note that the followings are separate things:
+* #### Create a Jira Cloud account
+If you haven't got a Jira Cloud account or you want to create accounts for external users, please go to
+[Jira Self Service Portal (Arup staffs only)](http://to.arup.com/jssp).
+* #### Create a Next-gen projet
+You can do this once you have a Jira Cloud account. Look at the step 2 and 3 below.
+* #### Add existing Jira Cloud users to a Next-gen project
+You can do this in __Project Settings > People__.
+
+
+### Set up a Next-gen Project for Arup Issue Tracker
+#### Step 1: Install the latest Arup Issue Tracker
+[Download Installer (2018.11.1.1)](https://github.com/ArupAus/issue-tracker/releases/download/2018.11.01.01/Case_Issue_Tracker_2018.11.01.01.msi)
+
+##### Please also make sure you have upgraded to Windows 10 and your Internet Explorer is up to date.
+<img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_6.png" width="300">
+
+#### Step 2: Create a Next-gen Project on Jira Cloud
+<img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/nextgen1.png" width="400">
+
+#### Step 3: Choose Template, Project Name, Project Key, and Access Level
+<img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/nextgen2.png" width="400">
+
+#### Step 4: Create a GUID Field for Every Issue Type
+<img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/nextgen4.jpg" width="400">
+
+#### Step 5: Change Project Category (Optional)
+<img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/nextgen3.png" width="400">
