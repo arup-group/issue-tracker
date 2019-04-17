@@ -5,12 +5,12 @@
         public string self { get; set; }
         public string key
         {
-            get { return accountId != null ? accountId : key; }
+            get { return accountId; }
             set { accountId = value; }
         }
         public string name 
         {
-            get { return accountId != null ? accountId : name; }
+            get { return accountId; }
             set { accountId = value; } 
         }
         public string accountId { get; set; }

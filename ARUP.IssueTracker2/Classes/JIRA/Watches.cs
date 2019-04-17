@@ -19,7 +19,7 @@ namespace ARUP.IssueTracker.Classes.JIRA
         public string self { get; set; }
         public string name
         {
-            get { return accountId != null ? accountId : name; }
+            get { return accountId; }
             set { accountId = value; }
         }
         public string accountId { get; set; }

@@ -1481,7 +1481,8 @@ namespace ARUP.IssueTracker.UserControls
                     {
                         if (!watchersToRemain.Contains(watcherToRemove))
                         {
-                            var request2 = new RestRequest("issue/" + jira.IssuesCollection[currentIssueIndex].key + "/watchers?username=" + watcherToRemove.name, Method.DELETE);
+                            string param = JiraClient.Client.BaseUrl.ToLower().Contains("atlassian.net") ? "accountId" : "username";
+                            var request2 = new RestRequest("issue/" + jira.IssuesCollection[currentIssueIndex].key + "/watchers?" + param + "=" + watcherToRemove.name, Method.DELETE);
                             request2.AddHeader("Content-Type", "application/json");
                             request2.RequestFormat = Arup.RestSharp.DataFormat.Json;
                             requests.Add(request2);
