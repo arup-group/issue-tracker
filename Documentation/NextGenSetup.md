@@ -21,7 +21,7 @@ In a nutshell, Next-gen is recommended for most use cases. However, this is NOT 
 Note that the following actions are separate things:
 * #### Create a Jira Cloud account
 If you haven't got a Jira Cloud account or you want to create accounts for external users, please go to
-[Jira Self Service Portal (Arup staffs only)](http://to.arup.com/jssp).
+[Jira Self Service Portal (Arup staffs only)](http://aru.ps/jssp).
 * #### Create a Next-gen projet
 You can do this once you have a Jira Cloud account. Look at the step 2 and 3 below.
 * #### Add existing Jira Cloud users to a Next-gen project
