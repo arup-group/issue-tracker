@@ -15,12 +15,16 @@ The tools can be used to store a list of 'Issues' in either a BCF file (BIM Coll
 ## Installation
 Please download the latest installer from the link below.
 
-[Download Installer (2018.11.1.1)](https://github.com/ArupAus/issue-tracker/releases/download/2018.11.01.01/Case_Issue_Tracker_2018.11.01.01.msi)
+[Download Installer (2019.4.17.1)](https://github.com/ArupAus/issue-tracker/releases/download/2019.4.17.1/Case_Issue_Tracker_2019.04.17.01.msi)
 
 ## Documentation
 [User Guide](https://arupaus.github.io/issue-tracker/Documentation/UserGuide)
 
 [Jira Cloud Account Setup Guide](https://arupaus.github.io/issue-tracker/Documentation/JiraCloudLogin)
+
+[Jira Cloud Next-gen Project Setup Guide](https://arupaus.github.io/issue-tracker/Documentation/NextGenSetup)
+
+[Jira Self Service Portal (Arup staffs only)](http://aru.ps/jssp)
 
 ## Screencasts
 [Video Playlist](https://media.arup.com/embedplaylist/secure/embed/playlistId/0_o01zfipb)
