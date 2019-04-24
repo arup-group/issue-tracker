@@ -7,7 +7,8 @@ This is an important update since a new secured login method enforced by **Jira 
 ##### Please also make sure you have upgraded to Windows 10 and your Internet Explorer is up to date.
 <img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_6.png" width="300">
 
-### Step 2: Click “Add Jira Cloud Account” button in the Settings
+### Step 2: Click “Add Jira Cloud Account” button in the Settings__
+__DO NOT__ input your email and password directly. You must click the "Add Jira Cloud Account" button.
 <img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_1.jpg" width="400">
 
 ### Step 3: Select or input Jira Cloud URL.
