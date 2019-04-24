@@ -30,7 +30,7 @@ You can do this in __Project Settings > People__.
 
 ### Set up a Next-gen Project for Arup Issue Tracker
 #### Step 1: Install the latest Arup Issue Tracker
-[Download Installer (2018.11.1.1)](https://github.com/ArupAus/issue-tracker/releases/download/2018.11.01.01/Case_Issue_Tracker_2018.11.01.01.msi)
+[Download Installer (2019.4.17.1)](https://github.com/ArupAus/issue-tracker/releases/download/2019.4.17.1/Case_Issue_Tracker_2019.04.17.01.msi)
 
 ##### Please also make sure you have upgraded to Windows 10 and your Internet Explorer is up to date.
 <img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_6.png" width="300">
