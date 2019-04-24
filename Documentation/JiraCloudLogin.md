@@ -8,11 +8,11 @@ This is an important update since a new secured login method enforced by **Jira 
 <img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_6.png" width="300">
 
 ### Step 2: Click “Add Jira Cloud Account” button in the Settings__
-__DO NOT__ input your email and password directly. You must click the "Add Jira Cloud Account" button.
+##### __DO NOT__ input your email and password directly. You must click the "Add Jira Cloud Account" button.
 <img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_1.jpg" width="400">
 
 ### Step 3: Select or input Jira Cloud URL.
-Please make sure which Jira Cloud instance you are using and select/input its URL.
+##### Please make sure which Jira Cloud instance you are using and select/input its URL.
 <img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_2.jpg" width="400">
 
 ### Step 4: Log in with an existing Jira Cloud account.
