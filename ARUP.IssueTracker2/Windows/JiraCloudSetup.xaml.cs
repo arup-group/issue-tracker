@@ -84,8 +84,7 @@ namespace ARUP.IssueTracker.Windows
                                 }).always(function (jqXHR, textStatus) {
                                     window.location.href = 'https://id.atlassian.com/logout';
                                 });
-                            }else if(window.location.href.startsWith('https://id.atlassian.com/manage-profile')){
-                                window.external.hideControls();
+                            }else if(window.location.href == 'https://id.atlassian.com/login'){
                                 window.location.href = 'https://id.atlassian.com/manage/api-tokens';
                             }else if(window.location.href.startsWith('https://id.atlassian.com/logout')){
                                 var logoutButton = document.getElementById('logout-submit');
