@@ -2105,137 +2105,10 @@ namespace ARUP.IssueTracker.UserControls
                     zip.ExtractAll(jira.Bcf.TempPath);
                 }
 
-                var dir = new DirectoryInfo(jira.Bcf.TempPath);
-
-                // Check BCF version
-                bool isBCF2 = false;
-                foreach (var file in dir.GetFiles()) 
-                {
-                    if (File.Exists(IOPath.Combine(dir.FullName, "bcf.version")))
-                    {
-                        // This is a BCF 2.0 file
-                        isBCF2 = true;
-                    }
-                }
-
-                int errorCount = 0;
-                //ADD ISSUES FOR EACH SUBFOLDER
-                foreach (var folder in dir.GetDirectories())
-                {
-                    //BCF ISSUE is not complete
-                    if (!File.Exists(IOPath.Combine(folder.FullName, "snapshot.png")) || !File.Exists(IOPath.Combine(folder.FullName, "markup.bcf")) || !File.Exists(IOPath.Combine(folder.FullName, "viewpoint.bcfv"))) 
-                    {
-                        errorCount++;
-                        continue;
-                    }                        
-
-                    // This is a BCF 2.0 issue object
-                    Markup i = null;
-                    FileStream viewpointFile = new FileStream(IOPath.Combine(folder.FullName, "viewpoint.bcfv"), FileMode.Open);
-                    FileStream markupFile = new FileStream(IOPath.Combine(folder.FullName, "markup.bcf"), FileMode.Open);
-
-                    // all other viewpoints and snapshots
-                    List<string> otherViewpointFiles = new List<string>();
-                    List<string> otherSnapshotFiles = new List<string>();
-                    foreach(var file in folder.GetFiles())
-                    {
-                        if(file.Name != "viewpoint.bcfv" && file.Extension == ".bcfv")
-                        {
-                            otherViewpointFiles.Add(file.Name);
-                        }
-                        else if (file.Name != "snapshot.png" && (file.Extension == ".png" || file.Extension == ".jpg" || file.Extension == ".jpeg" || file.Extension == ".bmp"))
-                        {
-                            otherSnapshotFiles.Add(file.Name);
-                        }
-                    }
-
-                    if (isBCF2)
-                    {
-                        XmlSerializer serializerS = new XmlSerializer(typeof(ARUP.IssueTracker.Classes.BCF2.VisualizationInfo));
-                        ARUP.IssueTracker.Classes.BCF2.VisualizationInfo viewpoint = serializerS.Deserialize(viewpointFile) as ARUP.IssueTracker.Classes.BCF2.VisualizationInfo;
-
-                        XmlSerializer serializerM = new XmlSerializer(typeof(ARUP.IssueTracker.Classes.BCF2.Markup));
-                        ARUP.IssueTracker.Classes.BCF2.Markup markup = serializerM.Deserialize(markupFile) as ARUP.IssueTracker.Classes.BCF2.Markup;
-
-                        if (markup != null && viewpoint != null)
-                        {
-                            i = markup;
-                            foreach (var v in i.Viewpoints)
-                            {
-                                // handle viewpoint file
-                                if(v.Viewpoint == "viewpoint.bcfv")
-                                {
-                                    v.VisInfo = viewpoint;                                    
-                                }
-                                else if (otherViewpointFiles.Contains(v.Viewpoint))
-                                {
-                                    using (FileStream vFile = new FileStream(IOPath.Combine(folder.FullName, v.Viewpoint), FileMode.Open))
-                                    {
-                                        ARUP.IssueTracker.Classes.BCF2.VisualizationInfo vi = serializerS.Deserialize(vFile) as ARUP.IssueTracker.Classes.BCF2.VisualizationInfo;
-                                        if(vi != null)
-                                        {
-                                            v.VisInfo = vi;
-                                        }
-                                    }
-                                }
-                                // add reference to comment
-                                foreach (var comm in i.Comment)
-                                {
-                                    if (comm.Viewpoint != null)
-                                    {
-                                        if (comm.Viewpoint.Guid == v.Guid)
-                                        {
-                                            comm.visInfo = v.VisInfo;
-                                        }
-                                    }
-                                }
-
-                                // handle snapshot file
-                                if(v.Snapshot == "snapshot.png")
-                                {                                    
-                                    v.SnapshotPath = IOPath.Combine(folder.FullName, "snapshot.png");
-                                }
-                                else if (otherSnapshotFiles.Contains(v.Snapshot))
-                                {
-                                    v.SnapshotPath = IOPath.Combine(folder.FullName, v.Snapshot);                                    
-                                }
-                                // add reference to comment
-                                foreach (var comm in i.Comment)
-                                {
-                                    if (comm.Viewpoint != null)
-                                    {
-                                        if (comm.Viewpoint.Guid == v.Guid)
-                                        {
-                                            comm.snapshotFullUrl = v.SnapshotPath;
-                                        }
-                                    }
-                                }
-                            }
-                        }  
-                    }
-                    else
-                    {
-                        ARUP.IssueTracker.Classes.BCF1.IssueBCF bcf1Issue = new ARUP.IssueTracker.Classes.BCF1.IssueBCF();
-                        bcf1Issue.guid = new Guid(folder.Name);  // need to overwrite the guid generated by default constructor
-                        bcf1Issue.snapshot = IOPath.Combine(folder.FullName, "snapshot.png");
-
-                        XmlSerializer serializerS = new XmlSerializer(typeof(ARUP.IssueTracker.Classes.BCF1.VisualizationInfo));
-                        bcf1Issue.viewpoint = serializerS.Deserialize(viewpointFile) as ARUP.IssueTracker.Classes.BCF1.VisualizationInfo;
-
-                        XmlSerializer serializerM = new XmlSerializer(typeof(ARUP.IssueTracker.Classes.BCF1.Markup));
-                        bcf1Issue.markup = serializerM.Deserialize(markupFile) as ARUP.IssueTracker.Classes.BCF1.Markup;
-                        if (bcf1Issue.markup.Comment != null)
-                            bcf1Issue.markup.Comment = new ObservableCollection<ARUP.IssueTracker.Classes.BCF1.CommentBCF>(bcf1Issue.markup.Comment.OrderByDescending(o => o.Date));
-
-                        i = BcfAdapter.LoadBcf2IssueFromBcf1(bcf1Issue);
-                    }   
-
-                    viewpointFile.Close();
-                    markupFile.Close();                    
-                    
-                    if(i != null)
-                        jira.Bcf.Issues.Add(i);
-                }
+                var result = BcfAdapter.GetBcfIssuesFromPath(jira.Bcf.TempPath);
+                var issues = result.Item1;
+                int errorCount = result.Item2;
+                issues.ForEach(i => jira.Bcf.Issues.Add(i));
 
                 if (jira.Bcf.Issues.Any())
                     bcfPan.listIndex = 0;
@@ -2248,16 +2121,11 @@ namespace ARUP.IssueTracker.UserControls
                     MessageBox.Show(errorCount + " Issue(s) were not imported because of missing viewpoint and snapshot.",
                         "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-
-
             }
             catch (System.Exception ex1)
             {
                 MessageBox.Show("exception: " + ex1);
             }
-
-
-
         }
         public void NewBCF(object sender, RoutedEventArgs e)
         {

@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using ARUP.IssueTracker.Classes;
 using ARUP.IssueTracker.Classes.BCF2;
 using Ionic.Zip;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
+using RestSharp;
+using RestSharp.Authenticators;
 
 namespace BcfAutomation
 {
@@ -18,12 +25,12 @@ namespace BcfAutomation
         public static void Run(
             [QueueTrigger("bcf")]QueueMessage myQueueItem,
             [Blob("bcf/{blobName}", FileAccess.Read)] Stream myBlob,
-            ILogger log)
+            TraceWriter log)
         {
-            log.LogInformation($"Jira Address: {myQueueItem.jiraAddress}");
-            log.LogInformation($"Jira Project Key: {myQueueItem.jiraProjectKey}");
-            log.LogInformation($"Blob Name: {myQueueItem.blobName}");
-            log.LogInformation($"Blob size: {myBlob.Length}");
+            log.Info($"Jira Address: {myQueueItem.jiraAddress}");
+            log.Info($"Jira Project Key: {myQueueItem.jiraProjectKey}");
+            log.Info($"Blob Name: {myQueueItem.blobName}");
+            log.Info($"Blob size: {myBlob.Length}");
 
             string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             using (ZipFile zip = ZipFile.Read(myBlob))
@@ -31,141 +38,354 @@ namespace BcfAutomation
                 zip.ExtractAll(tempFolder);
             }
 
-            var dir = new DirectoryInfo(tempFolder);
+            var result = BcfAdapter.GetBcfIssuesFromPath(tempFolder);
+            var issues = result.Item1;
+            int errorCount = result.Item2;
 
-            // Check BCF version
-            bool isBCF2 = false;
-            foreach (var file in dir.GetFiles())
+            // TODO: clean up viewpoints
+
+            log.Info($"Number of issues: {issues.Count}");
+            log.Info($"Number of errors: {errorCount}");
+
+            RestClient restClient = new RestClient(myQueueItem.jiraAddress + "/rest/api/2");
+            restClient.CookieContainer = new CookieContainer();
+            restClient.Authenticator = new HttpBasicAuthenticator(Environment.GetEnvironmentVariable("JIRA_SERVICE_ACCOUNT_USERNAME"), Environment.GetEnvironmentVariable("JIRA_SERVICE_ACCOUNT_API_KEY"));
+
+            int newIssueCounter = 0;
+            int updateIssueCounter = 0;
+            int unchangedIssueCounter = 0;
+
+            // look for custom GUID field id and issue type id
+            var request6 = new RestRequest("issue/createmeta?expand=projects.issuetypes.fields&projectKeys=" + myQueueItem.jiraProjectKey, Method.GET);
+            request6.AddHeader("Content-Type", "application/json");
+            request6.RequestFormat = RestSharp.DataFormat.Json;
+            var response6 = restClient.Execute(request6);
+            if (!CheckResponse(response6))
             {
-                if (File.Exists(Path.Combine(dir.FullName, "bcf.version")))
+                log.Info($"Failed to get create issue metadata: {response6.StatusCode.ToString()}");
+                return;
+            }
+            string customGuidFieldName = string.Empty;
+            string issueTypeId = string.Empty;
+            bool guidFound = false;
+            var allProjects = JObject.Parse(response6.Content);
+            JArray projects = (JArray)allProjects["projects"];
+            foreach (var project in projects)
+            {
+                if ((string)project["key"] == myQueueItem.jiraProjectKey)
                 {
-                    // This is a BCF 2.0 file
-                    isBCF2 = true;
+                    var allIssueTypes = ((JArray)project["issuetypes"]);
+                    foreach (var issueType in allIssueTypes)
+                    {
+                        foreach (var field in ((JObject)issueType["fields"]).Properties())
+                        {
+                            if ((string)field.Value["name"] == "GUID")
+                            {
+                                customGuidFieldName = field.Name;
+                                issueTypeId = issueType["id"].Value<string>();
+                                guidFound = true;
+                                break;
+                            }
+                        }
+                        if (guidFound)
+                        {
+                            break;
+                        }
+                    }
                 }
             }
-
-            List<Markup> issues = new List<Markup>();
-
-            int errorCount = 0;
-            //ADD ISSUES FOR EACH SUBFOLDER
-            foreach (var folder in dir.GetDirectories())
+            if (!guidFound || string.IsNullOrWhiteSpace(customGuidFieldName))
             {
-                //BCF ISSUE is not complete
-                if (!File.Exists(Path.Combine(folder.FullName, "snapshot.png")) || !File.Exists(Path.Combine(folder.FullName, "markup.bcf")) || !File.Exists(Path.Combine(folder.FullName, "viewpoint.bcfv")))
+                log.Info($"Failed to find custom GUID field.");
+                return;
+            }
+            log.Info($"Custom GUID field name: {customGuidFieldName}");
+            if (string.IsNullOrWhiteSpace(issueTypeId))
+            {
+                log.Info($"Failed to find issue type id.");
+                return;
+            }
+            log.Info($"Issue type id: {issueTypeId}");
+
+            foreach (var issueBcf in issues)
+            {
+                var issueJira = new Issue();
+                issueJira.fields = new Fields();
+                //issueJira.fields.creator = new User() { name = jira.Self.name }; // FIXME
+
+                // add labels if present
+                if (issueBcf.Topic.Labels != null)
                 {
-                    errorCount++;
-                    continue;
+                    issueJira.fields.labels = issueBcf.Topic.Labels.ToList();
                 }
 
-                // This is a BCF 2.0 issue object
-                Markup i = null;
-                FileStream viewpointFile = new FileStream(Path.Combine(folder.FullName, "viewpoint.bcfv"), FileMode.Open);
-                FileStream markupFile = new FileStream(Path.Combine(folder.FullName, "markup.bcf"), FileMode.Open);
+                // handle and add description
+                //Add annotations for snapshot/viewpoint
+                StringBuilder descriptionBody = new StringBuilder();
+                if (!string.IsNullOrWhiteSpace(issueBcf.Topic.Description))
+                    descriptionBody.AppendLine(issueBcf.Topic.Description);
+                descriptionBody.AppendLine(string.Format("{{anchor:<Viewpoint>[^{0}]</Viewpoint>}}", "viewpoint.bcfv"));
+                descriptionBody.AppendLine(string.Format("!{0}|thumbnail!", "snapshot.png"));
+                descriptionBody.AppendLine(string.Format("{{anchor:<Snapshot>[^{0}]</Snapshot>}}", "snapshot.png"));
+                issueJira.fields.description = descriptionBody.ToString();
 
-                // all other viewpoints and snapshots
-                List<string> otherViewpointFiles = new List<string>();
-                List<string> otherSnapshotFiles = new List<string>();
-                foreach (var file in folder.GetFiles())
+                // handle comments
+                foreach (var bcfComment in issueBcf.Comment)
                 {
-                    if (file.Name != "viewpoint.bcfv" && file.Extension == ".bcfv")
+                    if (bcfComment.Viewpoint != null)
                     {
-                        otherViewpointFiles.Add(file.Name);
-                    }
-                    else if (file.Name != "snapshot.png" && (file.Extension == ".png" || file.Extension == ".jpg" || file.Extension == ".jpeg" || file.Extension == ".bmp"))
-                    {
-                        otherSnapshotFiles.Add(file.Name);
-                    }
-                }
-
-                if (isBCF2)
-                {
-                    XmlSerializer serializerS = new XmlSerializer(typeof(ARUP.IssueTracker.Classes.BCF2.VisualizationInfo));
-                    ARUP.IssueTracker.Classes.BCF2.VisualizationInfo viewpoint = serializerS.Deserialize(viewpointFile) as ARUP.IssueTracker.Classes.BCF2.VisualizationInfo;
-
-                    XmlSerializer serializerM = new XmlSerializer(typeof(ARUP.IssueTracker.Classes.BCF2.Markup));
-                    ARUP.IssueTracker.Classes.BCF2.Markup markup = serializerM.Deserialize(markupFile) as ARUP.IssueTracker.Classes.BCF2.Markup;
-
-                    if (markup != null && viewpoint != null)
-                    {
-                        i = markup;
-                        foreach (var v in i.Viewpoints)
+                        ViewPoint bcfViewpoint = issueBcf.Viewpoints.ToList().Find(vp => vp.Guid == bcfComment.Viewpoint.Guid);
+                        //Add annotations for snapshot/viewpoint
+                        StringBuilder commentBody = new StringBuilder();
+                        commentBody.AppendLine(bcfComment.Comment1);
+                        if (bcfViewpoint != null)
                         {
-                            // handle viewpoint file
-                            if (v.Viewpoint == "viewpoint.bcfv")
+                            if (!string.IsNullOrWhiteSpace(bcfViewpoint.Viewpoint))
                             {
-                                v.VisInfo = viewpoint;
+                                commentBody.AppendLine(string.Format("{{anchor:<Viewpoint>[^{0}]</Viewpoint>}}", bcfViewpoint.Viewpoint));
                             }
-                            else if (otherViewpointFiles.Contains(v.Viewpoint))
+                            if (!string.IsNullOrWhiteSpace(bcfViewpoint.Snapshot))
                             {
-                                using (FileStream vFile = new FileStream(Path.Combine(folder.FullName, v.Viewpoint), FileMode.Open))
-                                {
-                                    ARUP.IssueTracker.Classes.BCF2.VisualizationInfo vi = serializerS.Deserialize(vFile) as ARUP.IssueTracker.Classes.BCF2.VisualizationInfo;
-                                    if (vi != null)
-                                    {
-                                        v.VisInfo = vi;
-                                    }
-                                }
+                                commentBody.AppendLine(string.Format("!{0}|thumbnail!", bcfViewpoint.Snapshot));
+                                commentBody.AppendLine(string.Format("{{anchor:<Snapshot>[^{0}]</Snapshot>}}", bcfViewpoint.Snapshot));
                             }
-                            // add reference to comment
-                            foreach (var comm in i.Comment)
-                            {
-                                if (comm.Viewpoint != null)
-                                {
-                                    if (comm.Viewpoint.Guid == v.Guid)
-                                    {
-                                        comm.visInfo = v.VisInfo;
-                                    }
-                                }
-                            }
+                        }
 
-                            // handle snapshot file
-                            if (v.Snapshot == "snapshot.png")
+                        bcfComment.Comment1 = commentBody.ToString();
+                    }
+                }
+
+                // upload to Jira
+                try
+                {
+                    //CHECK IF ALREADY EXISTING
+                    // could use the expression: cf[11600] ~ "aaaa"
+                    // = operator not supported
+                    string fields = " AND  GUID~" + issueBcf.Topic.Guid + "&fields=key,comment";
+                    string query = "search?jql=project=\"" + myQueueItem.jiraProjectKey + "\"" + fields;
+
+                    var request4 = new RestRequest("search", Method.GET);                    
+                    request4.AddQueryParameter("jql", "project=\"" + myQueueItem.jiraProjectKey + "\"" + " AND  GUID~" + issueBcf.Topic.Guid);
+                    request4.AddQueryParameter("fields", "key,comment");
+                    request4.AddHeader("Content-Type", "application/json");
+                    request4.RequestFormat = RestSharp.DataFormat.Json;
+                    var response4 = restClient.Execute<Issues>(request4);
+
+                    if (!CheckResponse(response4))
+                    {
+                        log.Info($"Failed to check issue existence: {response4.StatusCode.ToString()}");
+                        break;
+                    }
+
+                    //DOESN'T exist already
+                    if (!response4.Data.issues.Any())
+                    {
+                        //files to be uploaded
+                        List<string> filesToBeUploaded = new List<string>();
+                        if (File.Exists(Path.Combine(tempFolder, issueBcf.Topic.Guid, "markup.bcf")))
+                            filesToBeUploaded.Add(Path.Combine(tempFolder, issueBcf.Topic.Guid, "markup.bcf"));
+                        issueBcf.Viewpoints.ToList().ForEach(vp => {
+                            if (!string.IsNullOrWhiteSpace(vp.Snapshot) && File.Exists(Path.Combine(tempFolder, issueBcf.Topic.Guid, vp.Snapshot)))
+                                filesToBeUploaded.Add(Path.Combine(tempFolder, issueBcf.Topic.Guid, vp.Snapshot));
+                            if (!string.IsNullOrWhiteSpace(vp.Viewpoint) && File.Exists(Path.Combine(tempFolder, issueBcf.Topic.Guid, vp.Viewpoint)))
+                                filesToBeUploaded.Add(Path.Combine(tempFolder, issueBcf.Topic.Guid, vp.Viewpoint));
+                        });
+                        string key = "";
+
+                        var request = new RestRequest("issue", Method.POST);
+                        request.AddHeader("Content-Type", "application/json");
+                        request.RequestFormat = RestSharp.DataFormat.Json;
+
+                        newIssueCounter++;
+                        var newissue =
+                            new
                             {
-                                v.SnapshotPath = Path.Combine(folder.FullName, "snapshot.png");
-                            }
-                            else if (otherSnapshotFiles.Contains(v.Snapshot))
+
+                                fields = new Dictionary<string, object>()
+
+                            };
+                        newissue.fields.Add("project", new { key = myQueueItem.jiraProjectKey });
+                        if (!string.IsNullOrWhiteSpace(issueJira.fields.description))
+                        {
+                            newissue.fields.Add("description", issueJira.fields.description);
+                        }
+                        newissue.fields.Add("summary", (string.IsNullOrWhiteSpace(issueBcf.Topic.Title)) ? "no title" : issueBcf.Topic.Title);
+                        newissue.fields.Add("issuetype", new { id = issueTypeId });
+                        newissue.fields.Add(customGuidFieldName, issueBcf.Topic.Guid);
+
+                        if (issueJira.fields.labels != null && issueJira.fields.labels.Any())
+                            newissue.fields.Add("labels", issueJira.fields.labels);
+
+                        request.AddBody(newissue);
+                        var response = restClient.Execute(request);
+
+                        var responseIssue = new Issue();
+                        if (CheckResponse(response))
+                        {
+                            responseIssue = RestSharp.SimpleJson.DeserializeObject<Issue>(response.Content);
+                            key = responseIssue.key;//attach and comment sent to the new issue
+                            log.Info($"Issue created: {key}");
+                        }
+                        else
+                        {
+                            log.Info(response.Content);
+                            log.Info($"Failed to create issue: {response.StatusCode.ToString()}");
+                            break;
+                        }
+
+                        //upload all viewpoints and snapshots
+                        var request2 = new RestRequest("issue/" + key + "/attachments", Method.POST);
+                        request2.AddHeader("X-Atlassian-Token", "nocheck");
+                        request2.RequestFormat = RestSharp.DataFormat.Json;
+                        filesToBeUploaded.ForEach(file => request2.AddFile("file", File.ReadAllBytes(file), Path.GetFileName(file)));
+                        var response2 = restClient.Execute(request2);
+                        if (!CheckResponse(response2))
+                        {
+                            log.Info($"Failed to create upload attachments: {response2.StatusCode.ToString()}");
+                        }
+
+                        //ADD COMMENTS
+                        if (issueBcf.Comment.Any())
+                        {
+                            foreach (var c in issueBcf.Comment)
                             {
-                                v.SnapshotPath = Path.Combine(folder.FullName, v.Snapshot);
-                            }
-                            // add reference to comment
-                            foreach (var comm in i.Comment)
-                            {
-                                if (comm.Viewpoint != null)
+                                var request3 = new RestRequest("issue/" + key + "/comment", Method.POST);
+                                request3.AddHeader("Content-Type", "application/json");
+                                request3.RequestFormat = RestSharp.DataFormat.Json;
+                                var newcomment = new { body = c.Comment1 };
+                                request3.AddBody(newcomment);
+                                var response3 = restClient.Execute<Comment2>(request3);
+                                if (!CheckResponse(response3))
                                 {
-                                    if (comm.Viewpoint.Guid == v.Guid)
-                                    {
-                                        comm.snapshotFullUrl = v.SnapshotPath;
-                                    }
+                                    log.Info($"Failed to add comment: {response3.StatusCode.ToString()}");
+                                    break;
                                 }
                             }
                         }
                     }
-                }
-                else
+                    else //UPDATE ISSUE
+                    {
+                        var oldIssue = response4.Data.issues.First();
+                        if (issueBcf.Comment.Any())
+                        {
+                            int unmodifiedCommentNumber = 0;
+                            foreach (var c in issueBcf.Comment)
+                            {
+                                //clean all metadata annotations
+                                string newComment = c.Comment1;
+                                string normalized1 = Regex.Replace(newComment, @"\s", "");
+                                if (oldIssue.fields.comment.comments.Any(o => Regex.Replace(o.body, @"\s", "").Equals(normalized1, StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    unmodifiedCommentNumber++;
+                                    continue;
+                                }
+
+                                var request3 = new RestRequest("issue/" + oldIssue.key + "/comment", Method.POST);
+                                request3.AddHeader("Content-Type", "application/json");
+                                request3.RequestFormat = RestSharp.DataFormat.Json;
+                                var newcomment = new { body = c.Comment1 };
+                                request3.AddBody(newcomment);
+                                var response3 = restClient.Execute<Comment2>(request3);
+
+                                //upload viewpoint and snapshot
+                                var request5 = new RestRequest("issue/" + oldIssue.key + "/attachments", Method.POST);
+                                request5.AddHeader("X-Atlassian-Token", "nocheck");
+                                request5.RequestFormat = RestSharp.DataFormat.Json;
+                                issueBcf.Viewpoints.ToList().ForEach(vp => {
+                                    if (c.Viewpoint != null)
+                                    {
+                                        if (vp.Guid == c.Viewpoint.Guid)
+                                        {
+                                            if (File.Exists(Path.Combine(tempFolder, issueBcf.Topic.Guid, vp.Snapshot)))
+                                                request5.AddFile("file", File.ReadAllBytes(Path.Combine(tempFolder, issueBcf.Topic.Guid, vp.Snapshot)), vp.Snapshot);
+                                            if (File.Exists(Path.Combine(tempFolder, issueBcf.Topic.Guid, vp.Viewpoint)))
+                                                request5.AddFile("file", File.ReadAllBytes(Path.Combine(tempFolder, issueBcf.Topic.Guid, vp.Viewpoint)), vp.Viewpoint);
+                                        }
+                                    }
+                                });
+                                if (request5.Files.Count > 0)
+                                {
+                                    var response5 = restClient.Execute(request5);
+                                    CheckResponse(response5);
+                                }
+
+
+                                if (!CheckResponse(response3))
+                                {
+                                    break;
+                                }
+
+                            }
+
+                            if (unmodifiedCommentNumber == issueBcf.Comment.Count)
+                            {
+                                log.Info($"Issue unchanged: {oldIssue.key}");
+                                unchangedIssueCounter++;
+                            }
+                            else
+                            {
+                                log.Info($"Issue updated: {oldIssue.key}");
+                                updateIssueCounter++;
+                            }
+                        }
+                        else
+                        {
+                            log.Info($"Issue unchanged: {oldIssue.key}");
+                            unchangedIssueCounter++;
+                        }
+                    }
+
+                } // END TRY
+                catch (System.Exception ex)
                 {
-                    ARUP.IssueTracker.Classes.BCF1.IssueBCF bcf1Issue = new ARUP.IssueTracker.Classes.BCF1.IssueBCF();
-                    bcf1Issue.guid = new Guid(folder.Name);  // need to overwrite the guid generated by default constructor
-                    bcf1Issue.snapshot = Path.Combine(folder.FullName, "snapshot.png");
-
-                    XmlSerializer serializerS = new XmlSerializer(typeof(ARUP.IssueTracker.Classes.BCF1.VisualizationInfo));
-                    bcf1Issue.viewpoint = serializerS.Deserialize(viewpointFile) as ARUP.IssueTracker.Classes.BCF1.VisualizationInfo;
-
-                    XmlSerializer serializerM = new XmlSerializer(typeof(ARUP.IssueTracker.Classes.BCF1.Markup));
-                    bcf1Issue.markup = serializerM.Deserialize(markupFile) as ARUP.IssueTracker.Classes.BCF1.Markup;
-                    if (bcf1Issue.markup.Comment != null)
-                        bcf1Issue.markup.Comment = new ObservableCollection<ARUP.IssueTracker.Classes.BCF1.CommentBCF>(bcf1Issue.markup.Comment.OrderByDescending(o => o.Date));
-
-                    i = BcfAdapter.LoadBcf2IssueFromBcf1(bcf1Issue);
-                }
-
-                viewpointFile.Close();
-                markupFile.Close();
-
-                if (i != null)
-                    issues.Add(i);
+                    log.Error($"Exception happened when uploading to Jira: {tempFolder}", ex);
+                }                
             }
 
-            log.LogInformation($"Number of issues: {issues.Count}");
+            log.Info($"newIssueCounter: {newIssueCounter}");
+            log.Info($"updateIssueCounter: {updateIssueCounter}");
+            log.Info($"unchangedIssueCounter: {unchangedIssueCounter}");
+
+            try
+            {
+                DeleteDirectory(tempFolder);
+            }
+            catch(Exception ex)
+            {
+                log.Error($"Failed to delete temp folder: {tempFolder}", ex);
+            }            
+        }
+
+        private static bool CheckResponse(IRestResponse response)
+        {
+            return response != null && (response.StatusCode == System.Net.HttpStatusCode.OK
+                    || response.StatusCode == System.Net.HttpStatusCode.Created
+                    || response.StatusCode == System.Net.HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
+        /// Depth-first recursive delete, with handling for descendant 
+        /// directories open in Windows Explorer.
+        /// </summary>
+        private static void DeleteDirectory(string path)
+        {
+            foreach (string directory in Directory.GetDirectories(path))
+            {
+                DeleteDirectory(directory);
+            }
+
+            try
+            {
+                Directory.Delete(path, true);
+            }
+            catch (IOException)
+            {
+                Directory.Delete(path, true);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Directory.Delete(path, true);
+            }
         }
     }
 
