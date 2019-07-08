@@ -22,15 +22,20 @@ namespace BcfAutomation
     public static class Function1
     {
         [FunctionName("Function1")]
-        public static void Run(
-            [QueueTrigger("bcf")]QueueMessage myQueueItem,
+        [return: Queue("notification")]
+        public static OutgoingQueueMessage Run(
+            [QueueTrigger("bcf")]IncomingQueueMessage myQueueItem,
             [Blob("bcf/{blobName}", FileAccess.Read)] Stream myBlob,
             TraceWriter log)
         {
             log.Info($"Jira Address: {myQueueItem.jiraAddress}");
             log.Info($"Jira Project Key: {myQueueItem.jiraProjectKey}");
+            log.Info($"Created By: {myQueueItem.createdByEmail}");
+            log.Info($"BCF File Name: {myQueueItem.bcfFileName}");
             log.Info($"Blob Name: {myQueueItem.blobName}");
-            log.Info($"Blob size: {myBlob.Length}");
+            log.Info($"Blob Size: {myBlob.Length}");
+
+            OutgoingQueueMessage outputMessage = new OutgoingQueueMessage() { jiraAddress = myQueueItem.jiraAddress, jiraProjectKey = myQueueItem.jiraProjectKey, createdByEmail = myQueueItem.createdByEmail, bcfFileName = myQueueItem.bcfFileName, fileSize = myBlob.Length };
 
             string tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             using (ZipFile zip = ZipFile.Read(myBlob))
@@ -44,16 +49,18 @@ namespace BcfAutomation
 
             // TODO: clean up viewpoints
 
-            log.Info($"Number of issues: {issues.Count}");
-            log.Info($"Number of errors: {errorCount}");
+            log.Info($"Number of Issues Found: {issues.Count}");
+            outputMessage.numberOfIssuesFound = issues.Count;
+            log.Info($"Number of Issues Skipped: {errorCount}");
+            outputMessage.numberOfIssuesSkipped = errorCount;
 
             RestClient restClient = new RestClient(myQueueItem.jiraAddress + "/rest/api/2");
             restClient.CookieContainer = new CookieContainer();
             restClient.Authenticator = new HttpBasicAuthenticator(Environment.GetEnvironmentVariable("JIRA_SERVICE_ACCOUNT_USERNAME"), Environment.GetEnvironmentVariable("JIRA_SERVICE_ACCOUNT_API_KEY"));
 
-            int newIssueCounter = 0;
-            int updateIssueCounter = 0;
-            int unchangedIssueCounter = 0;
+            List<string> newIssueKeys = new List<string>();
+            List<string> updatedIssueKeys = new List<string>();
+            List<string> unchangedIssueKeys = new List<string>();
 
             // look for custom GUID field id and issue type id
             var request6 = new RestRequest("issue/createmeta?expand=projects.issuetypes.fields&projectKeys=" + myQueueItem.jiraProjectKey, Method.GET);
@@ -61,12 +68,14 @@ namespace BcfAutomation
             request6.RequestFormat = RestSharp.DataFormat.Json;
             var response6 = restClient.Execute(request6);
             if (!CheckResponse(response6))
-            {
-                log.Info($"Failed to get create issue metadata: {response6.StatusCode.ToString()}");
-                return;
+            {                
+                outputMessage.errorMessage = $"Failed to get create issue metadata: {response6.StatusCode.ToString()}";
+                log.Info(outputMessage.errorMessage);
+                return outputMessage;
             }
             string customGuidFieldName = string.Empty;
             string issueTypeId = string.Empty;
+            string issueTypeName = string.Empty;
             bool guidFound = false;
             var allProjects = JObject.Parse(response6.Content);
             JArray projects = (JArray)allProjects["projects"];
@@ -83,6 +92,7 @@ namespace BcfAutomation
                             {
                                 customGuidFieldName = field.Name;
                                 issueTypeId = issueType["id"].Value<string>();
+                                issueTypeName = issueType["name"].Value<string>();
                                 guidFound = true;
                                 break;
                             }
@@ -96,16 +106,22 @@ namespace BcfAutomation
             }
             if (!guidFound || string.IsNullOrWhiteSpace(customGuidFieldName))
             {
-                log.Info($"Failed to find custom GUID field.");
-                return;
+                outputMessage.errorMessage = $"Failed to find custom GUID field.";
+                log.Info(outputMessage.errorMessage);
+                return outputMessage;
             }
-            log.Info($"Custom GUID field name: {customGuidFieldName}");
+            outputMessage.customGuidFieldName = customGuidFieldName;
+            log.Info($"Custom GUID Field Name: {customGuidFieldName}");
             if (string.IsNullOrWhiteSpace(issueTypeId))
             {
-                log.Info($"Failed to find issue type id.");
-                return;
+                outputMessage.errorMessage = $"Failed to find issue type id.";
+                log.Info(outputMessage.errorMessage);
+                return outputMessage;
             }
-            log.Info($"Issue type id: {issueTypeId}");
+            outputMessage.issueTypeId = issueTypeId;
+            log.Info($"Issue Type ID: {issueTypeId}");
+            outputMessage.issueTypeName = issueTypeName;
+            log.Info($"Issue Type Name: {issueTypeName}");            
 
             foreach (var issueBcf in issues)
             {
@@ -196,7 +212,6 @@ namespace BcfAutomation
                         request.AddHeader("Content-Type", "application/json");
                         request.RequestFormat = RestSharp.DataFormat.Json;
 
-                        newIssueCounter++;
                         var newissue =
                             new
                             {
@@ -223,8 +238,9 @@ namespace BcfAutomation
                         if (CheckResponse(response))
                         {
                             responseIssue = RestSharp.SimpleJson.DeserializeObject<Issue>(response.Content);
-                            key = responseIssue.key;//attach and comment sent to the new issue
-                            log.Info($"Issue created: {key}");
+                            key = responseIssue.key; //attach and comment sent to the new issue
+                            newIssueKeys.Add(key);
+                            log.Info($"Issue created: {key}");                            
                         }
                         else
                         {
@@ -319,19 +335,19 @@ namespace BcfAutomation
 
                             if (unmodifiedCommentNumber == issueBcf.Comment.Count)
                             {
+                                unchangedIssueKeys.Add(oldIssue.key);
                                 log.Info($"Issue unchanged: {oldIssue.key}");
-                                unchangedIssueCounter++;
                             }
                             else
                             {
+                                updatedIssueKeys.Add(oldIssue.key);
                                 log.Info($"Issue updated: {oldIssue.key}");
-                                updateIssueCounter++;
                             }
                         }
                         else
                         {
-                            log.Info($"Issue unchanged: {oldIssue.key}");
-                            unchangedIssueCounter++;
+                            unchangedIssueKeys.Add(oldIssue.key);
+                            log.Info($"Issue unchanged: {oldIssue.key}");                            
                         }
                     }
 
@@ -342,9 +358,12 @@ namespace BcfAutomation
                 }                
             }
 
-            log.Info($"newIssueCounter: {newIssueCounter}");
-            log.Info($"updateIssueCounter: {updateIssueCounter}");
-            log.Info($"unchangedIssueCounter: {unchangedIssueCounter}");
+            outputMessage.issuesCreated = newIssueKeys;
+            log.Info($"Number of Issues Created: {newIssueKeys.Count}");
+            outputMessage.issuesUpdated = updatedIssueKeys;
+            log.Info($"Number of Issues Updated: {updatedIssueKeys.Count}");
+            outputMessage.issuesUnchanged= unchangedIssueKeys;
+            log.Info($"Number of Issues Unchanged: {unchangedIssueKeys.Count}");
 
             try
             {
@@ -353,7 +372,10 @@ namespace BcfAutomation
             catch(Exception ex)
             {
                 log.Error($"Failed to delete temp folder: {tempFolder}", ex);
-            }            
+            }
+
+            outputMessage.isSuccessful = true;
+            return outputMessage;
         }
 
         private static bool CheckResponse(IRestResponse response)
@@ -389,10 +411,31 @@ namespace BcfAutomation
         }
     }
 
-    public class QueueMessage
+    public class IncomingQueueMessage
     {
         public string jiraAddress { get; set; }
         public string jiraProjectKey { get; set; }
         public string blobName { get; set; }
+        public string bcfFileName { get; set; }
+        public string createdByEmail { get; set; }
+    }
+
+    public class OutgoingQueueMessage
+    {
+        public string jiraAddress { get; set; }
+        public string jiraProjectKey { get; set; }
+        public string createdByEmail { get; set; }
+        public bool isSuccessful { get; set; }
+        public string errorMessage { get; set; }
+        public string bcfFileName { get; set; }
+        public long fileSize { get; set; }
+        public int numberOfIssuesFound { get; set; }
+        public int numberOfIssuesSkipped { get; set; }
+        public string customGuidFieldName { get; set; }
+        public string issueTypeId { get; set; }
+        public string issueTypeName { get; set; }
+        public List<string> issuesCreated { get; set; }
+        public List<string> issuesUpdated { get; set; }
+        public List<string> issuesUnchanged { get; set; }
     }
 }
