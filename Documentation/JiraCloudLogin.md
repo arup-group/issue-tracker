@@ -2,7 +2,7 @@
 This is an important update since a new secured login method enforced by **Atlassian Jira Cloud** would take effect on 1st December 2018. **The current login method would stop working.** Please refer to the steps below to update your credentials. Note that this only affects Jira Cloud (https://arupdigital.atlassian.net or https://ovearup.atlassian.net). Our internal Jira Server (http://jira.arup.com) is working as usual. If you fail to log in with the following steps, please refer to **Manual Setup** on the bottom of this page.
 
 ### Step 1: Install the latest Arup Issue Tracker
-[Download Installer (2019.4.17.1)](https://github.com/ArupAus/issue-tracker/releases/download/2019.4.17.1/Case_Issue_Tracker_2019.04.17.01.msi)
+[Download Installer (2019.7.15.1)](https://github.com/ArupAus/issue-tracker/releases/download/2019.7.15.1/Case_Issue_Tracker_2019.07.15.01.msi)
 
 ##### Please also make sure you have upgraded to Windows 10 and your Internet Explorer is up to date.
 <img src="https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/images/JiraCloudLogin_6.png" width="300">
