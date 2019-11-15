@@ -36,7 +36,8 @@ namespace BcfAutomation
                 return req.CreateResponse(HttpStatusCode.BadRequest, "Please pass a Jira URL (?jiraUrl=) and a project key (or project name) (?project=) on the query string or in the request body.");
             }
 
-            log.Info($"Requested Project Name: {projectKey}");
+            log.Info($"Requested Jira URL: {jiraUrl}");
+            log.Info($"Requested Project Key: {projectKey}");
 
             List<Issue> allIssues = new List<Issue>();
 
@@ -49,12 +50,14 @@ namespace BcfAutomation
                 int startAt = 0;
                 int total = 0;                
                 do
-                {
-                    string path = $"search?startAt={startAt}&maxResults=100&jql=project={projectKey}";
-                    log.Info($"Request Path: {path}");
-                    var request1 = new RestRequest(path, Method.GET);
+                {                    
+                    var request1 = new RestRequest("search", Method.GET);
+                    request1.AddQueryParameter("jql", $"project=\"{projectKey}\"", true);
+                    request1.AddQueryParameter("startAt", startAt.ToString());
+                    request1.AddQueryParameter("maxResults", (10).ToString());
                     request1.AddHeader("Content-Type", "application/json");
                     request1.RequestFormat = RestSharp.DataFormat.Json;
+                    log.Info($"Request Full URL: {restClient.BuildUri(request1)}");
                     var response1 = restClient.Execute(request1);
 
                     if (response1.StatusCode == HttpStatusCode.OK)
@@ -71,7 +74,7 @@ namespace BcfAutomation
                         return req.CreateResponse(HttpStatusCode.InternalServerError, response1);
                     }
                     
-                } while (startAt <= total);
+                } while (total > 0 && startAt < total);
             }
             catch (Exception ex)
             {
