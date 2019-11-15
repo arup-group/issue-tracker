@@ -19,9 +19,9 @@ using RestSharp.Authenticators;
 
 namespace BcfAutomation
 {
-    public static class Function1
+    public static class SaveBcfIssuesToJira
     {
-        [FunctionName("Function1")]
+        [FunctionName("SaveBcfIssuesToJira")]
         [return: Queue("notification")]
         public static OutgoingQueueMessage Run(
             [QueueTrigger("bcf")]IncomingQueueMessage myQueueItem,
@@ -83,6 +83,7 @@ namespace BcfAutomation
                     return outputMessage;
                 }
                 string customGuidFieldName = string.Empty;
+                string customBcfViewpointFieldName = string.Empty;
                 string issueTypeId = string.Empty;
                 string issueTypeName = string.Empty;
                 bool projectFound = false;
@@ -105,7 +106,10 @@ namespace BcfAutomation
                                     issueTypeId = issueType["id"].Value<string>();
                                     issueTypeName = issueType["name"].Value<string>();
                                     guidFound = true;
-                                    break;
+                                }
+                                if ((string)field.Value["name"] == "BCF_Viewpoint")
+                                {
+                                    customBcfViewpointFieldName = field.Name;
                                 }
                             }
                             if (guidFound)
@@ -214,14 +218,33 @@ namespace BcfAutomation
                         if (!response4.Data.issues.Any())
                         {
                             //files to be uploaded
+                            string bcfViewpointString = null;
                             List<string> filesToBeUploaded = new List<string>();
                             if (File.Exists(Path.Combine(tempFolder, issueBcf.Topic.Guid, "markup.bcf")))
                                 filesToBeUploaded.Add(Path.Combine(tempFolder, issueBcf.Topic.Guid, "markup.bcf"));
                             issueBcf.Viewpoints.ToList().ForEach(vp => {
                                 if (!string.IsNullOrWhiteSpace(vp.Snapshot) && File.Exists(Path.Combine(tempFolder, issueBcf.Topic.Guid, vp.Snapshot)))
                                     filesToBeUploaded.Add(Path.Combine(tempFolder, issueBcf.Topic.Guid, vp.Snapshot));
-                                if (!string.IsNullOrWhiteSpace(vp.Viewpoint) && File.Exists(Path.Combine(tempFolder, issueBcf.Topic.Guid, vp.Viewpoint)))
+                                string viewpointFilePath = Path.Combine(tempFolder, issueBcf.Topic.Guid, vp.Viewpoint);
+                                if (!string.IsNullOrWhiteSpace(vp.Viewpoint) && File.Exists(viewpointFilePath))
+                                {
                                     filesToBeUploaded.Add(Path.Combine(tempFolder, issueBcf.Topic.Guid, vp.Viewpoint));
+                                    // parse and serialise the first BCF viewpoint found
+                                    if (!string.IsNullOrEmpty(customBcfViewpointFieldName) && bcfViewpointString == null)
+                                    {
+                                        using (FileStream viewpointFile = new FileStream(viewpointFilePath, FileMode.Open))
+                                        {
+                                            XmlSerializer serializerS = new XmlSerializer(typeof(ARUP.IssueTracker.Classes.BCF2.VisualizationInfo));
+                                            ARUP.IssueTracker.Classes.BCF2.VisualizationInfo vi = serializerS.Deserialize(viewpointFile) as ARUP.IssueTracker.Classes.BCF2.VisualizationInfo;
+                                            // clean up a bit
+                                            vi.Lines = null;
+                                            vi.Components = null;
+                                            vi.Bitmaps = null;
+                                            vi.ClippingPlanes = null; // TODO: make sure GIS doesn't support clipping planes
+                                            bcfViewpointString = JsonUtils.Serialize(vi);
+                                        }
+                                    }
+                                }                                                                     
                             });
                             string key = "";
 
@@ -244,6 +267,10 @@ namespace BcfAutomation
                             newissue.fields.Add("summary", (string.IsNullOrWhiteSpace(issueBcf.Topic.Title)) ? "no title" : issueBcf.Topic.Title);
                             newissue.fields.Add("issuetype", new { id = issueTypeId });
                             newissue.fields.Add(customGuidFieldName, issueBcf.Topic.Guid);
+                            if (!string.IsNullOrEmpty(customBcfViewpointFieldName) && !string.IsNullOrEmpty(bcfViewpointString))
+                            {
+                                newissue.fields.Add(customBcfViewpointFieldName, bcfViewpointString);
+                            }                            
 
                             if (issueJira.fields.labels != null && issueJira.fields.labels.Any())
                                 newissue.fields.Add("labels", issueJira.fields.labels);
