@@ -54,7 +54,7 @@ namespace BcfAutomation
                     var request1 = new RestRequest("search", Method.GET);
                     request1.AddQueryParameter("jql", $"project=\"{projectKey}\"", true);
                     request1.AddQueryParameter("startAt", startAt.ToString());
-                    request1.AddQueryParameter("maxResults", (10).ToString());
+                    request1.AddQueryParameter("maxResults", (100).ToString());
                     request1.AddHeader("Content-Type", "application/json");
                     request1.RequestFormat = RestSharp.DataFormat.Json;
                     log.Info($"Request Full URL: {restClient.BuildUri(request1)}");
