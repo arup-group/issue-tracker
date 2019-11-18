@@ -10,7 +10,7 @@ using Microsoft.Azure.WebJobs.Host;
 using RestSharp;
 using RestSharp.Authenticators;
 
-namespace BcfAutomation
+namespace BcfAutomation.GetJiraIssuesByProject
 {
     public static class GetJiraIssuesByProject
     {

@@ -17,7 +17,7 @@ using Newtonsoft.Json.Linq;
 using RestSharp;
 using RestSharp.Authenticators;
 
-namespace BcfAutomation
+namespace BcfAutomation.SaveBcfIssuesToJira
 {
     public static class SaveBcfIssuesToJira
     {
