@@ -82,7 +82,7 @@ namespace BcfAutomation.GetJiraIssuesByProject
                 return req.CreateResponse(HttpStatusCode.InternalServerError, ex);
             }
 
-            return req.CreateResponse(HttpStatusCode.OK, allIssues);
+            return req.CreateResponse(HttpStatusCode.OK, allIssues, System.Net.Http.Formatting.JsonMediaTypeFormatter.DefaultMediaType);
         }
     }
 
