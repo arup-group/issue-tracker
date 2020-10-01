@@ -3,7 +3,7 @@ The Arup Issue Tracker (AIT) is a set of tools designed to manage the electronic
 
 The tools can be used to store a list of 'Issues' in either a BCF file (BIM Collaboration Format) or using a web-based 'Issue Tracker' called Jira. This Issues can then be assignened, tracked and managed by the team in order to manage updates and tasks within the BIM model.
 
-![](https://raw.githubusercontent.com/ArupAus/issue-tracker/master/Documentation/screenshot.png)
+![](https://raw.githubusercontent.com/arup-group/issue-tracker/master/Documentation/screenshot.png)
 
 ## Integration
 * Autodesk Revit 2014-2019
@@ -15,14 +15,14 @@ The tools can be used to store a list of 'Issues' in either a BCF file (BIM Coll
 ## Installation
 Please download the latest installer from the link below.
 
-[Download Installer (2019.7.15.1)](https://github.com/ArupAus/issue-tracker/releases/download/2019.7.15.1/Case_Issue_Tracker_2019.07.15.01.msi)
+[Download Installer (2019.7.15.1)](https://github.com/arup-group/issue-tracker/releases/download/2019.7.15.1/Case_Issue_Tracker_2019.07.15.01.msi)
 
 ## Documentation
-[User Guide](https://arupaus.github.io/issue-tracker/Documentation/UserGuide)
+[User Guide](https://arup-group.github.io/issue-tracker/Documentation/UserGuide)
 
-[Jira Cloud Account Setup Guide](https://arupaus.github.io/issue-tracker/Documentation/JiraCloudLogin)
+[Jira Cloud Account Setup Guide](https://arup-group.github.io/issue-tracker/Documentation/JiraCloudLogin)
 
-[Jira Cloud Next-gen Project Setup Guide](https://arupaus.github.io/issue-tracker/Documentation/NextGenSetup)
+[Jira Cloud Next-gen Project Setup Guide](https://arup-group.github.io/issue-tracker/Documentation/NextGenSetup)
 
 [Jira Self Service Portal (Arup staffs only)](http://aru.ps/jssp)
 
@@ -30,6 +30,6 @@ Please download the latest installer from the link below.
 [Video Playlist](https://media.arup.com/embedplaylist/secure/embed/playlistId/0_o01zfipb)
 
 ## Development
-See the [master](https://github.com/ArupAus/issue-tracker/tree/master) branch for the latest.
+See the [master](https://github.com/arup-group/issue-tracker/tree/master) branch for the latest.
 
 This code will be in flux until properly merged with https://github.com/WeConnect/issue-tracker  and  https://github.com/teocomi/BCFier 
