@@ -5,7 +5,7 @@
         Title="Arup Issue Tracker by CASE" Width="800" Height="500"  Name="mainWin"
          Closing="Window_Closing" Icon="icon.ico" >
     <Grid >
-        <ctr:MainPanel Name="mainPan" />
+        <ctr:MainPanel Name="mainPan" Loaded="mainPan_Loaded" />
         
     </Grid>
 </Window>

@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ARUP.IssueTracker.Revit</RootNamespace>
     <AssemblyName>ARUP.IssueTracker.Revit.2021</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
@@ -54,14 +54,17 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="RevitAPI">
-      <HintPath>..\Lib\Revit\2019\RevitAPI.dll</HintPath>
+    <Reference Include="RevitAPI, Version=20.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2021\RevitAPI.dll</HintPath>
     </Reference>
-    <Reference Include="RevitAPIIFC">
-      <HintPath>..\Lib\Revit\2019\RevitAPIIFC.dll</HintPath>
+    <Reference Include="RevitAPIIFC, Version=20.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2021\RevitAPIIFC.dll</HintPath>
     </Reference>
-    <Reference Include="RevitAPIUI">
-      <HintPath>..\Lib\Revit\2019\RevitAPIUI.dll</HintPath>
+    <Reference Include="RevitAPIUI, Version=18.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files\Autodesk\Revit 2021\RevitAPIUI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -90,7 +93,6 @@
     <Compile Include="AddIssueRevit.xaml.cs">
       <DependentUpon>AddIssueRevit.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.2019.cs" />
     <Compile Include="Classes\Utils.cs" />
     <Compile Include="CommentController.cs" />
     <Compile Include="ComponentController.cs" />
@@ -99,6 +101,7 @@
     <Compile Include="Entry\ExtOpenView.cs" />
     <Compile Include="Entry\AppMain.cs" />
     <Compile Include="MyProjectSettings.cs" />
+    <Compile Include="Properties\AssemblyInfo.2021.cs" />
     <Compile Include="RevitWindow.xaml.cs">
       <DependentUpon>RevitWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -119,6 +122,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ARUP.IssueTracker.Revit.2021.addin" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -132,9 +136,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ARUP.IssueTracker.Revit.2016.addin">
-      <SubType>Designer</SubType>
-    </Content>
     <Resource Include="Assets\snapshot.png" />
   </ItemGroup>
   <ItemGroup>

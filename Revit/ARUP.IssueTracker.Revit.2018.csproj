@@ -119,6 +119,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ARUP.IssueTracker.Revit.2018.addin" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -132,9 +133,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ARUP.IssueTracker.Revit.2016.addin">
-      <SubType>Designer</SubType>
-    </Content>
     <Resource Include="Assets\snapshot.png" />
   </ItemGroup>
   <ItemGroup>

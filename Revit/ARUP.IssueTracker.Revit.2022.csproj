@@ -54,15 +54,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="RevitAPI">
-      <HintPath>..\Lib\Revit\2019\RevitAPI.dll</HintPath>
-    </Reference>
-    <Reference Include="RevitAPIIFC">
-      <HintPath>..\Lib\Revit\2019\RevitAPIIFC.dll</HintPath>
-    </Reference>
-    <Reference Include="RevitAPIUI">
-      <HintPath>..\Lib\Revit\2019\RevitAPIUI.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Xml" />
@@ -90,7 +81,6 @@
     <Compile Include="AddIssueRevit.xaml.cs">
       <DependentUpon>AddIssueRevit.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.2019.cs" />
     <Compile Include="Classes\Utils.cs" />
     <Compile Include="CommentController.cs" />
     <Compile Include="ComponentController.cs" />
@@ -99,6 +89,7 @@
     <Compile Include="Entry\ExtOpenView.cs" />
     <Compile Include="Entry\AppMain.cs" />
     <Compile Include="MyProjectSettings.cs" />
+    <Compile Include="Properties\AssemblyInfo.2022.cs" />
     <Compile Include="RevitWindow.xaml.cs">
       <DependentUpon>RevitWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -119,6 +110,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ARUP.IssueTracker.Revit.2022.addin" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -132,9 +124,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ARUP.IssueTracker.Revit.2016.addin">
-      <SubType>Designer</SubType>
-    </Content>
     <Resource Include="Assets\snapshot.png" />
   </ItemGroup>
   <ItemGroup>

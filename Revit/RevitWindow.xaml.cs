@@ -615,12 +615,18 @@ namespace ARUP.IssueTracker.Revit
       XYZ origin = new XYZ(0, 0, 0);
 
 #if REVIT2019
-      ProjectPosition position = projectLocation.GetProjectPosition(origin);
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#elif REVIT2020
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#elif REVIT2021
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#elif REVIT2022
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
 #else
-      ProjectPosition position = projectLocation.get_ProjectPosition(origin);
+            ProjectPosition position = projectLocation.get_ProjectPosition(origin);
 #endif
 
-      int i = (negative) ? -1 : 1;
+            int i = (negative) ? -1 : 1;
       //foreach (Element element in elements)
       //{
       //    MessageBox.Show(UnitUtils.ConvertFromInternalUnits(position.EastWest, DisplayUnitType.DUT_METERS).ToString() + "  " + element.get_Parameter(BuiltInParameter.BASEPOINT_EASTWEST_PARAM).AsValueString() + "\n" +

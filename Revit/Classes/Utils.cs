@@ -45,6 +45,14 @@ namespace ARUP.IssueTracker.Revit.Classes
             XYZ origin = new XYZ(0, 0, 0);
 #if REVIT2019
             ProjectPosition position = projectLocation.GetProjectPosition(origin);
+
+#elif REVIT2020
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#elif REVIT2021
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#elif REVIT2022
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+
 #else
             ProjectPosition position = projectLocation.get_ProjectPosition(origin);
 #endif
@@ -104,6 +112,14 @@ namespace ARUP.IssueTracker.Revit.Classes
 
 #if REVIT2019
             ProjectPosition position = projectLocation.GetProjectPosition(origin);
+
+#elif REVIT2020
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#elif REVIT2021
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#elif REVIT2022
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+
 #else
             ProjectPosition position = projectLocation.get_ProjectPosition(origin);
 #endif
@@ -152,11 +168,25 @@ namespace ARUP.IssueTracker.Revit.Classes
             List<ClippingPlane> clippingPlanes = new List<ClippingPlane>();
 
             // transform six normals to model coordinates and shared coordinates
+
+
 #if REVIT2019
+            ProjectPosition projectPosition = projectLocation.GetProjectPosition(XYZ.Zero);
+
+#elif REVIT2020
             ProjectPosition projectPosition = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero);
+#elif REVIT2021
+            ProjectPosition projectPosition = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero);
+#elif REVIT2022
+            ProjectPosition projectPosition = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero);
+
 #else
             ProjectPosition projectPosition = doc.ActiveProjectLocation.get_ProjectPosition(XYZ.Zero);
 #endif
+
+
+
+
             Transform t1 = Transform.CreateTranslation(new XYZ(projectPosition.EastWest, projectPosition.NorthSouth, projectPosition.Elevation));
             Transform t2 = Transform.CreateRotation(XYZ.BasisZ, projectPosition.Angle);
 

@@ -2,7 +2,7 @@
 <RevitAddIns>
 <AddIn Type="Application">
 	<Name>ARUP Issue tracker</Name>
-	<Assembly>CASE/ARUP.IssueTracker.Revit/ARUP.IssueTracker.Revit.2019.dll</Assembly>
+	<Assembly>CASE/ARUP.IssueTracker.Revit/ARUP.IssueTracker.Revit.2022.dll</Assembly>
 	<AddInId>0f8d755d-e353-4c61-8918-04e36d81fa60</AddInId>
 	<FullClassName>ARUP.IssueTracker.Revit.Entry.AppMain</FullClassName>
 	<VendorId>CASE</VendorId>
