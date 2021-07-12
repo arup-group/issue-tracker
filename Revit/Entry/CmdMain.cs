@@ -39,13 +39,20 @@ namespace ARUP.IssueTracker.Revit.Entry
 #elif REVIT2017
                 string versionNumber = "2017";
 #elif REVIT2018
-                string versionNumber = "2018";
+				string versionNumber = "2018";
 #elif REVIT2019
                 string versionNumber = "2019";
-#endif
+#elif REVIT2020
+				string versionNumber = "2020";
 
-                // Version
-                if (!commandData.Application.Application.VersionName.Contains(versionNumber))
+#elif REVIT2021
+				string versionNumber = "2021";
+
+#elif REVIT2022
+				string versionNumber = "2022";
+#endif
+				// Version
+				if (!commandData.Application.Application.VersionName.Contains(versionNumber))
 				{
 					using (TaskDialog td = new TaskDialog("Cannot Continue"))
 					{
