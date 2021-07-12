@@ -428,93 +428,99 @@ namespace ARUP.IssueTracker.Revit
     public VisualizationInfo generateViewpoint(int elemCheck)
     {
 
-      try
-      {
-        UIDocument uidoc = uiapp.ActiveUIDocument;
-        Document doc = uidoc.Document;
+            try
+            {
+                UIDocument uidoc = uiapp.ActiveUIDocument;
+                Document doc = uidoc.Document;
 
-        VisualizationInfo v = new VisualizationInfo();
+                VisualizationInfo v = new VisualizationInfo();
 
-        XYZ centerIMP = new XYZ();
-        string type = "";
-        double zoomValue = 1;
+                XYZ centerIMP = new XYZ();
+                string type = "";
+                double zoomValue = 1;
 
-          if (uidoc.ActiveView.ViewType != ViewType.ThreeD) //is a 2D view
-          {
-              XYZ TL = uidoc.GetOpenUIViews()[0].GetZoomCorners()[0];
-              XYZ BR = uidoc.GetOpenUIViews()[0].GetZoomCorners()[1];
-              v.SheetCamera = new SheetCamera();
-              v.SheetCamera.SheetID = uidoc.ActiveView.Id.IntegerValue;
-              v.SheetCamera.TopLeft = new IssueTracker.Classes.BCF2.Point(TL.X, TL.Y, TL.Z);
-              v.SheetCamera.BottomRight = new IssueTracker.Classes.BCF2.Point(BR.X, BR.Y, BR.Z);
-          }
-          else
-          {
-              View3D view3D = (View3D)uidoc.ActiveView;
-              if (!view3D.IsPerspective) //IS ORTHO
-              {
-                  XYZ TL = uidoc.GetOpenUIViews()[0].GetZoomCorners()[0];
-                  XYZ BR = uidoc.GetOpenUIViews()[0].GetZoomCorners()[1];
+                if (uidoc.ActiveView.ViewType != ViewType.ThreeD) //is a 2D view
+                {
+                    XYZ TL = uidoc.GetOpenUIViews()[0].GetZoomCorners()[0];
+                    XYZ BR = uidoc.GetOpenUIViews()[0].GetZoomCorners()[1];
+                    v.SheetCamera = new SheetCamera();
+                    v.SheetCamera.SheetID = uidoc.ActiveView.Id.IntegerValue;
+                    v.SheetCamera.TopLeft = new IssueTracker.Classes.BCF2.Point(TL.X, TL.Y, TL.Z);
+                    v.SheetCamera.BottomRight = new IssueTracker.Classes.BCF2.Point(BR.X, BR.Y, BR.Z);
+                }
+                else
+                {
+                    View3D view3D = (View3D)uidoc.ActiveView;
+                    if (!view3D.IsPerspective) //IS ORTHO
+                    {
+                        XYZ TL = uidoc.GetOpenUIViews()[0].GetZoomCorners()[0];
+                        XYZ BR = uidoc.GetOpenUIViews()[0].GetZoomCorners()[1];
 
-                  double xO = (TL.X + BR.X) / 2;
-                  double yO = (TL.Y + BR.Y) / 2;
-                  double zO = (TL.Z + BR.Z) / 2;
-                  //converto to METERS
-                  centerIMP = new XYZ(xO, yO, zO);
-                  double dist = TL.DistanceTo(BR) / 2; //custom sectet value to get solibri zoom value from Corners of Revit UiView
-                  XYZ diagVector = TL.Subtract(BR);
-                  // **** CUSTOM VALUE FOR TEKLA **** //
-                  //zoomValue = UnitUtils.ConvertFromInternalUnits(dist * Math.Sin(diagVector.AngleTo(view3D.RightDirection)), DisplayUnitType.DUT_METERS);
-                  // **** CUSTOM VALUE FOR TEKLA **** //
-                  double customZoomValue = (MyProjectSettings.Get("useDefaultZoom", doc.PathName) == "1") ? 1 : 2.5;
+                        double xO = (TL.X + BR.X) / 2;
+                        double yO = (TL.Y + BR.Y) / 2;
+                        double zO = (TL.Z + BR.Z) / 2;
+                        //converto to METERS
+                        centerIMP = new XYZ(xO, yO, zO);
+                        double dist = TL.DistanceTo(BR) / 2; //custom sectet value to get solibri zoom value from Corners of Revit UiView
+                        XYZ diagVector = TL.Subtract(BR);
+                        // **** CUSTOM VALUE FOR TEKLA **** //
+                        //zoomValue = UnitUtils.ConvertFromInternalUnits(dist * Math.Sin(diagVector.AngleTo(view3D.RightDirection)), DisplayUnitType.DUT_METERS);
+                        // **** CUSTOM VALUE FOR TEKLA **** //
+                        double customZoomValue = (MyProjectSettings.Get("useDefaultZoom", doc.PathName) == "1") ? 1 : 2.5;
 
-                  zoomValue = UnitUtils.ConvertFromInternalUnits(dist * Math.Sin(diagVector.AngleTo(view3D.RightDirection)), DisplayUnitType.DUT_METERS) * customZoomValue;
-                  type = "OrthogonalCamera";
-              }
-              else // it is a perspective view
-              {
-                  centerIMP = uidoc.ActiveView.Origin;
-                  type = "PerspectiveCamera";
-                  zoomValue = 45;
-              }
-              ViewOrientation3D t = ConvertBasePoint(centerIMP, uidoc.ActiveView.ViewDirection, uidoc.ActiveView.UpDirection, false);
-              //ViewOrientation3D t = new ViewOrientation3D(centerIMP, uidoc.ActiveView.UpDirection, uidoc.ActiveView.ViewDirection);
-              XYZ c = t.EyePosition;
-              XYZ vi = t.ForwardDirection;
-              XYZ up = t.UpDirection;
-
-              if (type == "OrthogonalCamera")
-              {
-                  v.OrthogonalCamera = new OrthogonalCamera();
-                  v.OrthogonalCamera.CameraViewPoint.X = UnitUtils.ConvertFromInternalUnits(c.X, DisplayUnitType.DUT_METERS);
-                  v.OrthogonalCamera.CameraViewPoint.Y = UnitUtils.ConvertFromInternalUnits(c.Y, DisplayUnitType.DUT_METERS);
-                  v.OrthogonalCamera.CameraViewPoint.Z = UnitUtils.ConvertFromInternalUnits(c.Z, DisplayUnitType.DUT_METERS);
-                  v.OrthogonalCamera.CameraUpVector.X = UnitUtils.ConvertFromInternalUnits(up.X, DisplayUnitType.DUT_METERS);
-                  v.OrthogonalCamera.CameraUpVector.Y = UnitUtils.ConvertFromInternalUnits(up.Y, DisplayUnitType.DUT_METERS);
-                  v.OrthogonalCamera.CameraUpVector.Z = UnitUtils.ConvertFromInternalUnits(up.Z, DisplayUnitType.DUT_METERS);
-                  v.OrthogonalCamera.CameraDirection.X = UnitUtils.ConvertFromInternalUnits(vi.X, DisplayUnitType.DUT_METERS) * -1;
-                  v.OrthogonalCamera.CameraDirection.Y = UnitUtils.ConvertFromInternalUnits(vi.Y, DisplayUnitType.DUT_METERS) * -1;
-                  v.OrthogonalCamera.CameraDirection.Z = UnitUtils.ConvertFromInternalUnits(vi.Z, DisplayUnitType.DUT_METERS) * -1;
-                  v.OrthogonalCamera.ViewToWorldScale = zoomValue;
-              }
-              else
-              {
-                  v.PerspectiveCamera = new PerspectiveCamera();
-                  v.PerspectiveCamera.CameraViewPoint.X = UnitUtils.ConvertFromInternalUnits(c.X, DisplayUnitType.DUT_METERS);
-                  v.PerspectiveCamera.CameraViewPoint.Y = UnitUtils.ConvertFromInternalUnits(c.Y, DisplayUnitType.DUT_METERS);
-                  v.PerspectiveCamera.CameraViewPoint.Z = UnitUtils.ConvertFromInternalUnits(c.Z, DisplayUnitType.DUT_METERS);
-                  v.PerspectiveCamera.CameraUpVector.X = UnitUtils.ConvertFromInternalUnits(up.X, DisplayUnitType.DUT_METERS);
-                  v.PerspectiveCamera.CameraUpVector.Y = UnitUtils.ConvertFromInternalUnits(up.Y, DisplayUnitType.DUT_METERS);
-                  v.PerspectiveCamera.CameraUpVector.Z = UnitUtils.ConvertFromInternalUnits(up.Z, DisplayUnitType.DUT_METERS);
-                  v.PerspectiveCamera.CameraDirection.X = UnitUtils.ConvertFromInternalUnits(vi.X, DisplayUnitType.DUT_METERS) * -1;
-                  v.PerspectiveCamera.CameraDirection.Y = UnitUtils.ConvertFromInternalUnits(vi.Y, DisplayUnitType.DUT_METERS) * -1;
-                  v.PerspectiveCamera.CameraDirection.Z = UnitUtils.ConvertFromInternalUnits(vi.Z, DisplayUnitType.DUT_METERS) * -1;
-                  v.PerspectiveCamera.FieldOfView = zoomValue;
-              }
+                        zoomValue = UnitUtils.ConvertFromInternalUnits(dist * Math.Sin(diagVector.AngleTo(view3D.RightDirection)), DisplayUnitType.DUT_METERS) * customZoomValue;
+                        type = "OrthogonalCamera";
+                    }
+                    else // it is a perspective view
+                    {
+                        centerIMP = uidoc.ActiveView.Origin;
+                        type = "PerspectiveCamera";
+                        zoomValue = 45;
+                    }
+                    ViewOrientation3D t = ConvertBasePoint(centerIMP, uidoc.ActiveView.ViewDirection, uidoc.ActiveView.UpDirection, false);
+                    //ViewOrientation3D t = new ViewOrientation3D(centerIMP, uidoc.ActiveView.UpDirection, uidoc.ActiveView.ViewDirection);
+                    XYZ c = t.EyePosition;
+                    XYZ vi = t.ForwardDirection;
+                    XYZ up = t.UpDirection;
 
 
-              // handle section box if enabled
-              if (view3D.IsSectionBoxActive) 
+                }
+
+
+
+                if (type == "OrthogonalCamera")
+                {
+
+
+                    v.OrthogonalCamera = new OrthogonalCamera();
+                    v.OrthogonalCamera.CameraViewPoint.X = UnitUtils.ConvertFromInternalUnits(c.X, DisplayUnitType.DUT_METERS);
+                    v.OrthogonalCamera.CameraViewPoint.Y = UnitUtils.ConvertFromInternalUnits(c.Y, DisplayUnitType.DUT_METERS);
+                    v.OrthogonalCamera.CameraViewPoint.Z = UnitUtils.ConvertFromInternalUnits(c.Z, DisplayUnitType.DUT_METERS);
+                    v.OrthogonalCamera.CameraUpVector.X = UnitUtils.ConvertFromInternalUnits(up.X, DisplayUnitType.DUT_METERS);
+                    v.OrthogonalCamera.CameraUpVector.Y = UnitUtils.ConvertFromInternalUnits(up.Y, DisplayUnitType.DUT_METERS);
+                    v.OrthogonalCamera.CameraUpVector.Z = UnitUtils.ConvertFromInternalUnits(up.Z, DisplayUnitType.DUT_METERS);
+                    v.OrthogonalCamera.CameraDirection.X = UnitUtils.ConvertFromInternalUnits(vi.X, DisplayUnitType.DUT_METERS) * -1;
+                    v.OrthogonalCamera.CameraDirection.Y = UnitUtils.ConvertFromInternalUnits(vi.Y, DisplayUnitType.DUT_METERS) * -1;
+                    v.OrthogonalCamera.CameraDirection.Z = UnitUtils.ConvertFromInternalUnits(vi.Z, DisplayUnitType.DUT_METERS) * -1;
+                    v.OrthogonalCamera.ViewToWorldScale = zoomValue;
+                }
+                else
+                {
+                    v.PerspectiveCamera = new PerspectiveCamera();
+                    v.PerspectiveCamera.CameraViewPoint.X = UnitUtils.ConvertFromInternalUnits(c.X, DisplayUnitType.DUT_METERS);
+                    v.PerspectiveCamera.CameraViewPoint.Y = UnitUtils.ConvertFromInternalUnits(c.Y, DisplayUnitType.DUT_METERS);
+                    v.PerspectiveCamera.CameraViewPoint.Z = UnitUtils.ConvertFromInternalUnits(c.Z, DisplayUnitType.DUT_METERS);
+                    v.PerspectiveCamera.CameraUpVector.X = UnitUtils.ConvertFromInternalUnits(up.X, DisplayUnitType.DUT_METERS);
+                    v.PerspectiveCamera.CameraUpVector.Y = UnitUtils.ConvertFromInternalUnits(up.Y, DisplayUnitType.DUT_METERS);
+                    v.PerspectiveCamera.CameraUpVector.Z = UnitUtils.ConvertFromInternalUnits(up.Z, DisplayUnitType.DUT_METERS);
+                    v.PerspectiveCamera.CameraDirection.X = UnitUtils.ConvertFromInternalUnits(vi.X, DisplayUnitType.DUT_METERS) * -1;
+                    v.PerspectiveCamera.CameraDirection.Y = UnitUtils.ConvertFromInternalUnits(vi.Y, DisplayUnitType.DUT_METERS) * -1;
+                    v.PerspectiveCamera.CameraDirection.Z = UnitUtils.ConvertFromInternalUnits(vi.Z, DisplayUnitType.DUT_METERS) * -1;
+                    v.PerspectiveCamera.FieldOfView = zoomValue;
+                }
+
+                // handle section box if enabled
+                if (view3D.IsSectionBoxActive) 
               {
                   BoundingBoxXYZ sectionBox = view3D.GetSectionBox();
 
@@ -751,7 +757,7 @@ namespace ARUP.IssueTracker.Revit
       return myXYZ;
     }
 
-    #endregion
+#endregion
     
     /// <summary>
     /// passing event to the user control
