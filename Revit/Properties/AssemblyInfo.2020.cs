@@ -5,11 +5,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ARUP.IssueTracker.Win")]
-[assembly: AssemblyDescription("ARUP.IssueTracker.Win")]
+[assembly: AssemblyTitle("ARUP.IssueTracker.Revit.2020")]
+[assembly: AssemblyDescription("ARUP.IssueTracker.Revit.2020")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Arup")]
-[assembly: AssemblyProduct("ARUP.IssueTracker.Win")]
+[assembly: AssemblyProduct("ARUP.IssueTracker.Revit")]
 [assembly: AssemblyCopyright("Copyright © Arup 2021")]
 [assembly: AssemblyTrademark("Arup")]
 [assembly: AssemblyCulture("")]

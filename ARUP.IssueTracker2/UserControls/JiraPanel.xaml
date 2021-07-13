@@ -110,7 +110,7 @@
                 </StackPanel>
             </Button>-->
         </DockPanel>
-        
+
         <!-- MAIN CONTENT GRID -->
         <Grid Grid.Row="1" IsEnabled="{Binding  ElementName=projCombo, Path=SelectedIndex, Converter={StaticResource intEnabConverter3}}">
             <Grid.RowDefinitions>
@@ -201,52 +201,14 @@
                                 </StackPanel>
                             </StackPanel>
                         </GroupBox>
-                       
+
 
                     </WrapPanel>
                 </Grid>
             </Expander>
             <!-- ROW 3 ************************************************************************************ -->
-            <ListView  ItemsSource="{Binding IssuesCollection}" ItemContainerStyle="{StaticResource ListViewItemStyle}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                  AlternationCount="2"  IsSynchronizedWithCurrentItem="True" Grid.Row="2" Grid.RowSpan="4"  x:Name="issueList" x:FieldModifier="public" Margin="0"  BorderThickness="0"  SelectionMode="Extended" >
-
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-
-                        <Grid MaxWidth="{Binding (FrameworkElement.ActualWidth),  RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}">
-
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="1*"/>
-                            </Grid.ColumnDefinitions>
-                            <!-- <Image Name="thumb" Margin="0,0,5,0"  Grid.RowSpan="2" Width="60" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Source="{Binding snapshot, Converter={StaticResource uriToImageConv}, IsAsync=true}"  />
-                       -->
-                            <StackPanel Orientation="Horizontal"  Grid.Row="0" Grid.Column="1" >
-                                <TextBlock FontWeight="Bold" Text="{Binding formattedsubject}" VerticalAlignment="Bottom" TextDecorations="{Binding formattedresolution}" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal"  Grid.Row="1" Grid.Column="1" >
-                                <!--<Label FontWeight="Bold" FontSize="10"  Content="{Binding formattedstatus}"   VerticalAlignment="Bottom" />-->
-                                <Image Height="12" Width="12"  Source="{Binding fields.issuetype.iconUrl, IsAsync=true}" ToolTip="{Binding fields.issuetype.name}"  />
-                                <Image Margin="2,0,0,0" Height="12" Width="12"  Source="{Binding fields.status.iconUrl, IsAsync=true}" ToolTip="{Binding fields.status.name}"  />
-                                <Image Margin="2,0,0,0" Height="12" Width="12"   Source="{Binding fields.priority.iconUrl, IsAsync=true}" ToolTip="{Binding fields.priority.name}"  />
-                                <Label FontSize="11" VerticalAlignment="Bottom" Content="{Binding formatteddate}" ToolTip="{Binding formatteddate2}" />
-                                <Label FontSize="11" VerticalAlignment="Bottom" Content="·"/>
-                                <Label FontSize="11" VerticalAlignment="Bottom" Content="{Binding fields.comment.comments.Count, Converter={StaticResource commConverter}}"  />
-                                <!--   <Label VerticalAlignment="Bottom" Content="-"  />
-                            <Label VerticalAlignment="Bottom" Content="{Binding formattedattach}"  />-->
-                            </StackPanel>
-                            <!-- INNER HIDDEN PART ********************************************************************************-->
-
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-
-            </ListView>
+            <ListView ItemContainerStyle="{StaticResource ListViewItemStyle}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  AlternationCount="2"  IsSynchronizedWithCurrentItem="True" Grid.Row="2" Grid.RowSpan="4"  x:Name="issueList" x:FieldModifier="public" Margin="0"  BorderThickness="0"  SelectionMode="Extended" />
 
             <!--SECOND COLUMN   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
             <GridSplitter Grid.Column="1" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.RowSpan="6" Width="3" />
@@ -274,7 +236,7 @@
                                 <Path   Margin="0" Height="13" Width="13" Stretch="Uniform" Fill="Gray" 
                                         Data="M86,15L78.5,15L62.1,15L69.6,22.3L54.9,37L63.8,45.9L78.5,31.1L86,38.9M64,73L27,73L27,37L45.7,37L60.3,22L14,22L14,86L77,86L77,40.1L64,55.4" UseLayoutRounding="False"/>
                             </Button>
-                            
+
                             <Button MinWidth="60" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" x:Name="ChangeTitle" FontSize="14" FontWeight="Bold"
                                 HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal" >
@@ -361,11 +323,11 @@
                                     </Button>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
-                        </ListView>                        
+                        </ListView>
 
                     </Grid>
                     <!--<GridSplitter Grid.Column="2" Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.RowSpan="1" />-->
-                    
+
                     <Label Content="Description:"  Grid.Row="4" Grid.Column="2" FontWeight="Bold" Visibility="{Binding ElementName=issueList, Path=SelectedItem.fields.descripton, Converter={StaticResource stringVisibConverter}}"/>
                     <StackPanel Orientation="Vertical" Background="White" >
                         <TextBlock Padding="5" Margin="5" TextWrapping="Wrap" Background="WhiteSmoke" DataContext="{Binding ElementName=issueList, Path=SelectedItem}">
@@ -397,35 +359,35 @@
                     <ListView  ItemsSource="{Binding ElementName=issueList, Path=SelectedItem.fields.filteredAttachments}" 
                                     x:Name="attachmentList" Margin="0" BorderThickness="0" 
                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" VerticalContentAlignment="Top">
-                            <ListView.Template>
-                                <ControlTemplate>
-                                    <ItemsPresenter></ItemsPresenter>
-                                </ControlTemplate>
-                            </ListView.Template>
-                            <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Horizontal"></WrapPanel>
-                                </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Button Margin="0" Cursor="Hand" ToolTip="{Binding extension}"  Visibility="{Binding filename, Converter={StaticResource stringVisibConverter}}"   
+                        <ListView.Template>
+                            <ControlTemplate>
+                                <ItemsPresenter></ItemsPresenter>
+                            </ControlTemplate>
+                        </ListView.Template>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"></WrapPanel>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Button Margin="0" Cursor="Hand" ToolTip="{Binding extension}"  Visibility="{Binding filename, Converter={StaticResource stringVisibConverter}}"   
                                                         VerticalAlignment="Top" VerticalContentAlignment="Top" x:Name="OpenImageBtn" Tag="{Binding content}" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Click="OpenImageBtn_Click">
-                                        <StackPanel Orientation="Vertical">
-                                            <Rectangle Width="40" Height="50">
-                                                <Rectangle.Fill>
-                                                    <VisualBrush x:Name="fileTypeIcon" Stretch="Fill" Visual="{Binding extension, Converter={StaticResource extensionToResourceConverter}, ConverterParameter={x:Reference jiraPan}}" />
-                                                </Rectangle.Fill>
-                                            </Rectangle>
-                                            <TextBlock HorizontalAlignment="Left" FontSize="10.5" Text="{Binding filename}" TextWrapping="Wrap" MaxWidth="50" />
-                                        </StackPanel>
-                                    </Button>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
+                                    <StackPanel Orientation="Vertical">
+                                        <Rectangle Width="40" Height="50">
+                                            <Rectangle.Fill>
+                                                <VisualBrush x:Name="fileTypeIcon" Stretch="Fill" Visual="{Binding extension, Converter={StaticResource extensionToResourceConverter}, ConverterParameter={x:Reference jiraPan}}" />
+                                            </Rectangle.Fill>
+                                        </Rectangle>
+                                        <TextBlock HorizontalAlignment="Left" FontSize="10.5" Text="{Binding filename}" TextWrapping="Wrap" MaxWidth="50" />
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
                     <!--</StackPanel>-->
-                    
-                    <Label Content="Comments:" Grid.Row="4" Grid.Column="2" FontWeight="Bold"/>                    
+
+                    <Label Content="Comments:" Grid.Row="4" Grid.Column="2" FontWeight="Bold"/>
                     <ListView ItemsSource="{Binding ElementName=issueList, Path=SelectedItem.fields.comment.comments}" 
                         ItemContainerStyle="{StaticResource ListViewItemStyle2}"
                    Grid.Row="5" Grid.RowSpan="1" Grid.Column="2" x:Name="commentList" Margin="0" BorderThickness="0" 
@@ -443,7 +405,7 @@
                                             <StackPanel VerticalAlignment="Top"   Orientation="Horizontal"  DataContext="{Binding Path=DataContext, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Expander}}}" >
                                                 <Label  FontWeight="Bold" Content="{Binding author.displayName}" VerticalAlignment="Bottom"   />
                                                 <Label Grid.Column="1"  FontSize="11" VerticalAlignment="Bottom"  Content="{Binding formatteddate}"   ToolTip="{Binding formatteddate2}" />
-                                                <Label FontSize="11"  Content="{Binding expTitle}" Visibility="{Binding Path=IsExpanded, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Expander}}, Converter={StaticResource expandedConverter}}" />                                            
+                                                <Label FontSize="11"  Content="{Binding expTitle}" Visibility="{Binding Path=IsExpanded, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Expander}}, Converter={StaticResource expandedConverter}}" />
                                             </StackPanel>
                                         </DataTemplate>
                                     </Expander.HeaderTemplate>
@@ -470,7 +432,7 @@
                                                     </Button>
                                                 </StackPanel>                                                
                                             </InlineUIContainer>
-                                        </TextBlock>                                        
+                                        </TextBlock>
                                     </StackPanel>
                                 </Expander>
                             </DataTemplate>
@@ -479,7 +441,7 @@
                     </ListView>
                 </StackPanel>
             </ScrollViewer>
-            
+
             <!-- DOCK PANELS ******************************************************************************************************************************-->
             <DockPanel  HorizontalAlignment="Stretch" Grid.Row="6" Grid.Column="0" Background="WhiteSmoke" Grid.ColumnSpan="1"  >
                 <Button ToolTip="Add Issue" DockPanel.Dock="Left" Name="AddIssueBtn" x:FieldModifier="public"  Margin="5" IsEnabled="{Binding  ElementName=projCombo, Path=SelectedIndex, Converter={StaticResource intEnabConverter3}}">

@@ -52,7 +52,13 @@ namespace ARUP.IssueTracker.Revit.Entry
                     if (v.OrthogonalCamera.ViewToWorldScale == null || v.OrthogonalCamera.CameraViewPoint == null || v.OrthogonalCamera.CameraUpVector == null || v.OrthogonalCamera.CameraDirection == null)
                         return;
                     //type = "OrthogonalCamera";
+
+#if REVIT2021 || REVIT2022
+                    var zoom = UnitUtils.ConvertToInternalUnits(v.OrthogonalCamera.ViewToWorldScale, UnitTypeId.Meters);
+#else
                     var zoom = UnitUtils.ConvertToInternalUnits(v.OrthogonalCamera.ViewToWorldScale, DisplayUnitType.DUT_METERS);
+#endif
+
                     var CameraDirection = ARUP.IssueTracker.Revit.Classes.Utils.GetInternalXYZ(v.OrthogonalCamera.CameraDirection.X, v.OrthogonalCamera.CameraDirection.Y, v.OrthogonalCamera.CameraDirection.Z);
                     var CameraUpVector = ARUP.IssueTracker.Revit.Classes.Utils.GetInternalXYZ(v.OrthogonalCamera.CameraUpVector.X, v.OrthogonalCamera.CameraUpVector.Y, v.OrthogonalCamera.CameraUpVector.Z);
                     var CameraViewPoint = ARUP.IssueTracker.Revit.Classes.Utils.GetInternalXYZ(v.OrthogonalCamera.CameraViewPoint.X, v.OrthogonalCamera.CameraViewPoint.Y, v.OrthogonalCamera.CameraViewPoint.Z);
@@ -638,7 +644,15 @@ namespace ARUP.IssueTracker.Revit.Entry
 
         private XYZ ConvertToInternalAndSharedCoordinate(Document doc, XYZ p)
         {
+
+
+#if REVIT2021 || REVIT2022
+            ForgeTypeId lengthUnitType = UnitTypeId.Meters;
+#else
             DisplayUnitType lengthUnitType = DisplayUnitType.DUT_METERS;
+#endif
+
+
             p = new XYZ(
                         UnitUtils.ConvertToInternalUnits(p.X, lengthUnitType),
                         UnitUtils.ConvertToInternalUnits(p.Y, lengthUnitType),

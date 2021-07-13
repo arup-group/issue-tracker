@@ -43,8 +43,16 @@ namespace ARUP.IssueTracker.Revit.Classes
 
             ProjectLocation projectLocation = doc.ActiveProjectLocation;
             XYZ origin = new XYZ(0, 0, 0);
-#if REVIT2019
+#if REVIT2019  || REVIT2018
             ProjectPosition position = projectLocation.GetProjectPosition(origin);
+
+#elif REVIT2020
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#elif REVIT2021
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#elif REVIT2022
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+
 #else
             ProjectPosition position = projectLocation.get_ProjectPosition(origin);
 #endif
@@ -104,6 +112,14 @@ namespace ARUP.IssueTracker.Revit.Classes
 
 #if REVIT2019
             ProjectPosition position = projectLocation.GetProjectPosition(origin);
+
+#elif REVIT2020
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#elif REVIT2021
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+#elif REVIT2022
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+
 #else
             ProjectPosition position = projectLocation.get_ProjectPosition(origin);
 #endif
@@ -140,10 +156,21 @@ namespace ARUP.IssueTracker.Revit.Classes
         public static XYZ GetInternalXYZ(double x, double y, double z)
         {
 
+
+#if REVIT2022 || REVIT2021
+            XYZ myXYZ = new XYZ(
+              UnitUtils.ConvertToInternalUnits(x, UnitTypeId.Meters),
+              UnitUtils.ConvertToInternalUnits(y, UnitTypeId.Meters),
+              UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters));
+#else
             XYZ myXYZ = new XYZ(
               UnitUtils.ConvertToInternalUnits(x, DisplayUnitType.DUT_METERS),
               UnitUtils.ConvertToInternalUnits(y, DisplayUnitType.DUT_METERS),
               UnitUtils.ConvertToInternalUnits(z, DisplayUnitType.DUT_METERS));
+#endif
+
+
+
             return myXYZ;
         }
 
@@ -152,11 +179,25 @@ namespace ARUP.IssueTracker.Revit.Classes
             List<ClippingPlane> clippingPlanes = new List<ClippingPlane>();
 
             // transform six normals to model coordinates and shared coordinates
+
+
 #if REVIT2019
+            ProjectPosition projectPosition = projectLocation.GetProjectPosition(XYZ.Zero);
+
+#elif REVIT2020
             ProjectPosition projectPosition = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero);
+#elif REVIT2021
+            ProjectPosition projectPosition = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero);
+#elif REVIT2022
+            ProjectPosition projectPosition = doc.ActiveProjectLocation.GetProjectPosition(XYZ.Zero);
+
 #else
             ProjectPosition projectPosition = doc.ActiveProjectLocation.get_ProjectPosition(XYZ.Zero);
 #endif
+
+
+
+
             Transform t1 = Transform.CreateTranslation(new XYZ(projectPosition.EastWest, projectPosition.NorthSouth, projectPosition.Elevation));
             Transform t2 = Transform.CreateRotation(XYZ.BasisZ, projectPosition.Angle);
 

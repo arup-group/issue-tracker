@@ -5,11 +5,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ARUP.IssueTracker.Win")]
-[assembly: AssemblyDescription("ARUP.IssueTracker.Win")]
+[assembly: AssemblyTitle("ARUP.IssueTracker.Revit.2021")]
+[assembly: AssemblyDescription("ARUP.IssueTracker.Revit.2021")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Arup")]
-[assembly: AssemblyProduct("ARUP.IssueTracker.Win")]
+[assembly: AssemblyProduct("ARUP.IssueTracker.Revit")]
 [assembly: AssemblyCopyright("Copyright © Arup 2021")]
 [assembly: AssemblyTrademark("Arup")]
 [assembly: AssemblyCulture("")]
@@ -31,11 +31,11 @@ using System.Windows;
 
 [assembly: ThemeInfo(
 	 ResourceDictionaryLocation.None, //where theme specific resource dictionaries are located
-	//(used if a resource is not found in the page, 
-	// or application resource dictionaries)
+									  //(used if a resource is not found in the page, 
+									  // or application resource dictionaries)
 	 ResourceDictionaryLocation.SourceAssembly //where the generic resource dictionary is located
-	//(used if a resource is not found in the page, 
-	// app, or any theme specific resource dictionaries)
+											   //(used if a resource is not found in the page, 
+											   // app, or any theme specific resource dictionaries)
 )]
 
 

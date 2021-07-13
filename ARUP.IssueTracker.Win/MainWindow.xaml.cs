@@ -405,5 +405,9 @@ namespace ARUP.IssueTracker.Win
         sendIpcRequest(IpcOperationType.SelectElementsRequest, components, null);
     }
 
-  }
+        private void mainPan_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+    }
 }
