@@ -43,7 +43,7 @@ namespace ARUP.IssueTracker.Revit.Classes
 
             ProjectLocation projectLocation = doc.ActiveProjectLocation;
             XYZ origin = new XYZ(0, 0, 0);
-#if REVIT2019
+#if REVIT2019  || REVIT2018
             ProjectPosition position = projectLocation.GetProjectPosition(origin);
 
 #elif REVIT2020
@@ -156,10 +156,21 @@ namespace ARUP.IssueTracker.Revit.Classes
         public static XYZ GetInternalXYZ(double x, double y, double z)
         {
 
+
+#if REVIT2022 || REVIT2021
+            XYZ myXYZ = new XYZ(
+              UnitUtils.ConvertToInternalUnits(x, UnitTypeId.Meters),
+              UnitUtils.ConvertToInternalUnits(y, UnitTypeId.Meters),
+              UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters));
+#else
             XYZ myXYZ = new XYZ(
               UnitUtils.ConvertToInternalUnits(x, DisplayUnitType.DUT_METERS),
               UnitUtils.ConvertToInternalUnits(y, DisplayUnitType.DUT_METERS),
               UnitUtils.ConvertToInternalUnits(z, DisplayUnitType.DUT_METERS));
+#endif
+
+
+
             return myXYZ;
         }
 

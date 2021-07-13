@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Arup")]
 [assembly: AssemblyProduct("ARUP.IssueTracker.Win")]
-[assembly: AssemblyCopyright("Copyright © Arup 2019")]
+[assembly: AssemblyCopyright("Copyright © Arup 2021")]
 [assembly: AssemblyTrademark("Arup")]
 [assembly: AssemblyCulture("")]
 
@@ -49,6 +49,6 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2019.07.15.01")]
-[assembly: AssemblyFileVersion("2019.07.15.01")]
-[assembly: GuidAttribute("9FC6BA85-A348-40B4-97C4-6699DA912C21")]
+[assembly: AssemblyVersion("2021.07.12.01")]
+[assembly: AssemblyFileVersion("2021.07.12.01")]
+[assembly: GuidAttribute("59068325-ACDC-4DB3-892A-1C90C9434BF8")]
